@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.get("/", async (req, res) => {
+router.get("/sub-total/:sciId", async (req, res) => {
     try {
 
     } catch (error) {
@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/", async (req, res) => {
+router.get("/:sciId", async (req, res) => {
     try {
 
     } catch (error) {
@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/", async (req, res) => {
+router.get("/total-items/:sciId", async (req, res) => {
     try {
 
     } catch (error) {
@@ -41,7 +41,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.delete("/", async (req, res) => {
+router.delete("/:sciId", async (req, res) => {
     try {
 
     } catch (error) {

@@ -8,7 +8,7 @@ Accounts
 
 router.post("/login", async (req, res) => {
     try {
-
+        
     } catch (error) {
         res.send("Error in login: " + error);
     }
