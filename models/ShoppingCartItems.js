@@ -14,11 +14,11 @@ const shoppingCartItemsSchema = new Schema({
         type: Number,
         required: true
     },
-    productId: {
+    productId: [{
         type: Schema.Types.ObjectId,
         ref:"Products",
         required: true
-    },
+    }],
     userId: {
         type: Schema.Types.ObjectId,
         ref:"Users",
