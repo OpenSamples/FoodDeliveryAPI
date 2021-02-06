@@ -1,26 +1,10 @@
 const router = require("express").Router();
-const Products = require("../models/Products");
-const Categories = require("../models/Categories");
-
-/*
-Products
-- PostOneProduct - POST : api/Products
-- GetAllProducts - GET : api/Products
-- GetProductById - GET: api/Products/Show/1
-- GetProductByCategory - GET: api/Products/ProductsByCategory/1
-- GetPopularProduct - GET: api/Products/PopularProducts
-*/
+const Products = require("../controllers/ProductsController");
 
 router.post("/", async (req, res) => {
+    const productsBody = req.body;
     try {
-        await Products.create({
-            name: req.body.name,
-            detail: req.body.detail,
-            imageUrl: req.body.imageUrl,
-            price: req.body.price,
-            isPopularProduct: req.body.isPopularProduct,
-            categoryId: req.body.categoryId,
-        });
+        await Products.add(productsBody);
     } catch (error) {
         res.send("Error in creating product: " + error);
     }
@@ -28,7 +12,7 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
     try {
-        const allProducts = await Products.find().sort({ createdAt: -1 });
+        const allProducts = await Products.findAll();
         res.json(allProducts);
     } catch (error) {
         res.send("Error in getting all products: " + error);
@@ -37,7 +21,7 @@ router.get("/", async (req, res) => {
 
 router.get("/show/:productId", async (req, res) => {
     try {
-        const oneProduct = await Products.findOne({_id:req.params.productId});
+        const oneProduct = await Products.findOneById(req.params.productId);
         res.json(oneProduct);
     } catch (error) {
         res.send("Error in getting product: " + error);
@@ -46,7 +30,7 @@ router.get("/show/:productId", async (req, res) => {
 
 router.get("/products-by-category/:categoryId", async (req, res) => {
     try {
-        const productsByCategory = await Products.find({categoryId:req.params.categoryId});
+        const productsByCategory = await Products.findAllByCategory(req.params.categoryId);
         res.json(productsByCategory);
     } catch (error) {
         res.send("Error in getting products by category: " + error);
@@ -55,7 +39,7 @@ router.get("/products-by-category/:categoryId", async (req, res) => {
 
 router.get("/popular-products", async (req, res) => {
     try {
-        const popularProducts = await Products.find({isPopularProduct:true});
+        const popularProducts = await Products.findPopular();
         res.json(popularProducts);
     } catch (error) {
         res.send("Error in getting popular products: " + error);

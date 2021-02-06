@@ -7,7 +7,7 @@ Orders
 - OrdersByUser - GET: api/Orders/OrdersByUser/3
 */
 
-router.post("", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
 
     } catch (error) {
