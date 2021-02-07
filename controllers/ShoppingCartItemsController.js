@@ -29,10 +29,15 @@ function addToCart(productData,shoppingCartItemsData){
     });
 }
 
-function getTotalPrice(data){
-    return new Promise((resolve,reject)=>{
+function getTotalPrice(userId){
+    return new Promise(async (resolve,reject)=>{
         try {
-            
+            const allShoppingCartItemsByUser = await Shopping_cart_items.find({userId:userId});
+            let totalPrice = 0 ;
+            allShoppingCartItemsByUser.map(item=>{
+                totalPrice+=item.totalAmount
+            });
+            resolve(totalPrice);
         } catch (error) {
             console.log(error);
             reject(false);

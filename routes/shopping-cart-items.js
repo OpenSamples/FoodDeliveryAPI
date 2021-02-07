@@ -22,9 +22,10 @@ router.post("/:productId", async (req, res) => {
     }
 });
 
-router.get("/sub-total/:sciId", async (req, res) => {
+router.get("/sub-total/:userId", async (req, res) => {
     try {
-
+        const shoppingCartTotalPrice = await Shopping_cart_items.getTotalPrice(req.params.userId);
+        res.json(shoppingCartTotalPrice);
     } catch (error) {
         res.send("Error in getting shopping cart items: "+error);
     }
