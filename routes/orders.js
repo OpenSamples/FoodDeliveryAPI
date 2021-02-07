@@ -1,17 +1,12 @@
 const router = require("express").Router();
-
-/*
-Orders
-- PlaceOrder - POST: api/Orders
-- OrderDetails - GET: api/Orders/OrderDetails/4
-- OrdersByUser - GET: api/Orders/OrdersByUser/3
-*/
+const Orders = require("../controllers/OrdersController");
 
 router.post("/", async (req, res) => {
+    const ordersData = req.body;
     try {
-
+        await Orders.add(ordersData);
     } catch (error) {
-        res.send("Error in placing order: "+error);
+        res.status(403).json(error);
     }
 });
 
@@ -23,9 +18,10 @@ router.get("/order-details/:orderId", async (req, res) => {
     }
 });
 
-router.get("orders-by-users/:orderId", async (req, res) => {
+router.get("/orders-by-users/:userId", async (req, res) => {
     try {
-
+        const ordersByUser = await Orders.findByUser(req.params.userId);
+        res.json(ordersByUser);
     } catch (error) {
         res.send("Error in getting orders by user: "+error);
     }

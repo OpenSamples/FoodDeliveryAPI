@@ -1,24 +1,19 @@
 const router = require("express").Router();
-const Categories = require("../models/Categories");
-/*
-Categories
-- GetCategories - GET: api/Categories
-*/
+const Categories = require("../controllers/CategoriesController");
+
 
 router.post("/",async(req,res)=>{
+    const categoriesBody = req.body;
     try {
-        await Categories.create({
-            name:req.body.name,
-            imageUrl:req.body.imageUrl
-        });
+       await Categories.add(categoriesBody);
     } catch (error) {
-        res.send("Error in creating categories: "+error);
+        res.status(403).json(error);
     }
 });
 
 router.get("/",async(req,res)=>{
     try {
-        const allCategories = await Categories.find().sort({ createdAt: -1 });
+        const allCategories = await Categories.findAll();
         res.json(allCategories);
     } catch (error) {
         res.send("Error in getting categories: "+error);

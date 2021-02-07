@@ -6,7 +6,7 @@ router.post("/", async (req, res) => {
     try {
         await Products.add(productsBody);
     } catch (error) {
-        res.send("Error in creating product: " + error);
+        res.status(403).json(error);
     }
 });
 
