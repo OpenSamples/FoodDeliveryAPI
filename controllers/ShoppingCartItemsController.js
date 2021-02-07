@@ -3,19 +3,25 @@ const Products = require("../models/Products");
 
 /*
 ShopingCartItems
-- AddToCart - POST: api/ShoppingCartItems
-- ShoppingCartTotalPrice - GET: api/ShoppingCartItems/SubTotal/3
-- GetShoppingCartItems - GET: api/ShoppingCartItems/3
+- AddToCart - POST: api/ShoppingCartItems/4(Product ID)
+- ShoppingCartTotalPrice - GET: api/ShoppingCartItems/SubTotal/3(SciId)
+- GetShoppingCartItems - GET: api/ShoppingCartItems/3(SciId)
 - ItemsInCart - GET: api/ShoppingCartItems/TotalItems/3
 - ClearShoppingCart - DEL: api/ShoppingCartItems/3
 */
 
-function addToCart(sciId,productId){
-    return new Promise((resolve,reject)=>{
+
+function addToCart(productData,shoppingCartItemsData){
+    return new Promise(async(resolve,reject)=>{
         try {
-            resolve(Shopping_cart_items.findOneAndUpdate({_id:sciId}),{
-                $push:{productId:productId}
+            const newSci = await Shopping_cart_items.create({
+                price:productData.price,
+                qty:shoppingCartItemsData.qty,
+                totalAmount:productData.price*shoppingCartItemsData.qty,
+                productId:productData.id,
+                userId:shoppingCartItemsData.userId
             });
+            resolve(newSci);
         } catch (error) {
             console.log(error);
             reject(false);

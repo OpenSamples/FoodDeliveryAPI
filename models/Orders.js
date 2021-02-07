@@ -17,7 +17,7 @@ const ordersSchema = new Schema({
     },
     orderTotal:{
         type:Number,
-        required:true
+        default:0
     },
     orderPlaced:{
         type:Date,
@@ -32,7 +32,11 @@ const ordersSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:"Users",
         required:true
-    }
+    },
+    orderDetails:[{
+        type:Schema.Types.ObjectId,
+        ref:"OrderDetails"
+    }]
 },{timestamps:true});
 
 const Orders = mongoose.model("Orders",ordersSchema);

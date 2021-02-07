@@ -1,10 +1,18 @@
 const router = require("express").Router();
 const Orders = require("../controllers/OrdersController");
 
+/*
+Orders
+- PlaceOrder - POST: api/Orders (Sadrzi niz OrderDetails...svaki OrderDetails sadrzi jedan Product koji je User izabrao)
+- OrderDetails - GET: api/Orders/OrderDetails/4(OrderDetails Id)
+- OrdersByUser - GET: api/Orders/OrdersByUser/3(User Id)
+*/
+
 router.post("/", async (req, res) => {
     const ordersData = req.body;
     try {
-        await Orders.add(ordersData);
+        //await Orders.add(ordersData);
+        res.json("hello");
     } catch (error) {
         res.status(403).json(error);
     }

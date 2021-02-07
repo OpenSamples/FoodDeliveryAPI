@@ -14,7 +14,7 @@ function add(data){
 function orderDetails(orderId) {
     return new Promise((resolve, reject) => {
         try {
-            resolve(Orders.find({_id: orderId}).exec())
+            resolve(Orders.find({_id: orderId}));
         } catch (error) {
             console.log(error);
             reject(false);

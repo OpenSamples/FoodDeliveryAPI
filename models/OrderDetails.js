@@ -26,6 +26,12 @@ const orderDetailsSchema = new Schema({
     }
 },{timestamps:true});
 
+orderDetailsSchema.virtual("")
+                  .get(function () { 
+                            return 0;
+                        });
+
+
 const Order_Details = mongoose.model("Order_Details",orderDetailsSchema);
 
 module.exports = Order_Details;

@@ -4,21 +4,17 @@ const Schema = mongoose.Schema;
 const shoppingCartItemsSchema = new Schema({
     price: {
         type: Number,
-        required: true
     },
     qty: {
         type: Number,
-        required: true
     },
     totalAmount: {
         type: Number,
-        required: true
     },
-    productId: [{
+    productId:{
         type: Schema.Types.ObjectId,
         ref:"Products",
-        required: true
-    }],
+    },
     userId: {
         type: Schema.Types.ObjectId,
         ref:"Users",
