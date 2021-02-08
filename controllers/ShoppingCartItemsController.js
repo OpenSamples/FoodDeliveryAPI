@@ -45,10 +45,15 @@ function getTotalPrice(userId){
     });
 }
 
-function getItems(data){
-    return new Promise((resolve,reject)=>{
+function getItems(userId){
+    return new Promise(async(resolve,reject)=>{
         try {
-            
+            const allShoppingCartItems = await Shopping_cart_items.find({userId:userId});
+            const productsIds = allShoppingCartItems.map(item=>{
+                return item.productId
+            });
+            const products = await Products.find({_id:{$in:productsIds}});
+            resolve(products);
         } catch (error) {
             console.log(error);
             reject(false);
@@ -56,10 +61,10 @@ function getItems(data){
     });
 }
 
-function getTotalItems(data){
+function getTotalItems(userId){
     return new Promise((resolve,reject)=>{
         try {
-            
+            resolve(Shopping_cart_items.countDocuments({userId:userId}));
         } catch (error) {
             console.log(error);
             reject(false);
@@ -67,10 +72,10 @@ function getTotalItems(data){
     });
 }
 
-function clearShoppingCart(data){
+function clearShoppingCart(sciId){
     return new Promise((resolve,reject)=>{
         try {
-            
+            resolve(Shopping_cart_items.findOneAndDelete({_id:sciId}));
         } catch (error) {
             console.log(error);
             reject(false);

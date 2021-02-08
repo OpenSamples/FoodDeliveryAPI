@@ -31,25 +31,28 @@ router.get("/sub-total/:userId", async (req, res) => {
     }
 });
 
-router.get("/:sciId", async (req, res) => {
+router.get("/all-items/:userId", async (req, res) => {
     try {
-
+        const allShoppingCartItems = await Shopping_cart_items.getItems(req.params.userId);
+        res.json(allShoppingCartItems);
     } catch (error) {
         res.send("Error in getting shopping cart items: "+error);
     }
 });
 
-router.get("/total-items/:sciId", async (req, res) => {
+router.get("/total-items/:userId", async (req, res) => {
     try {
-
+        const totalItems = await Shopping_cart_items.getTotalItems(req.params.userId);
+        res.json(totalItems);
     } catch (error) {
         res.send("Error in getting shopping cart items: "+error);
     }
 });
 
-router.delete("/:sciId", async (req, res) => {
+router.post("/remove-item/:sciId", async (req, res) => {
     try {
-
+        const deletedItem = await Shopping_cart_items.clearShoppingCart(req.params.sciId);
+        res.json(deletedItem);
     } catch (error) {
         res.send("Error in getting shopping cart items: "+error);
     }
