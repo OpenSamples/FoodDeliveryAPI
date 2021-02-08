@@ -1,6 +1,12 @@
 const Categories = require("../models/Categories");
 
-function add(data){
+/*
+Categories
+- GetCategories - GET: api/Categories
+-CreateCategories - POST: api/Categories
+*/
+
+function createCategories(data){
     return new Promise((resolve,reject)=>{
         try {
             resolve(Categories.create(data));
@@ -11,7 +17,7 @@ function add(data){
     });
 }
 
-function findAll(){
+function getAllCategories(){
     return new Promise((resolve,reject)=>{
         try {
             resolve(Categories.find({}).lean().sort({createdAt:-1}));
@@ -24,6 +30,6 @@ function findAll(){
 
 
 module.exports ={
-    add,
-    findAll
+    createCategories,
+    getAllCategories
 };

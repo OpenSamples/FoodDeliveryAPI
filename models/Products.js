@@ -4,27 +4,41 @@ const Schema = mongoose.Schema;
 const productsSchema = new Schema({
     name: {
         type: String,
-        required:true
+        required: true
     },
     detail: {
         type: String,
-        required:true
+        required: true
     },
     imageUrl: {
-        type: String,
-        required:true
+        type: String
     },
     price: {
         type: Number,
-        required:true
+        required: true
     },
     isPopularProduct: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
+    reviews: [{
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Users',
+            required: true
+        },
+        rating: {
+            type: Number
+        },
+        comment: {
+            type: String
+        }
+    }],
+    
     categoryId: {
-        type: Schema.Types.ObjectId,
-        ref:"Categories",
-        required:true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'categories',
+        required: true
     }
 }, { timestamps: true });
 

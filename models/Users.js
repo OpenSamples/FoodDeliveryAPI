@@ -2,29 +2,44 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const usersSchema = new Schema({
-    name:{
-        type:String,
-        required:true,
-        minlength:3,
-        maxlength:15,
+    firstName: {
+        type: String,
+        required: true
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true,
-        minlength:6
+    lastName: {
+        type: String,
+        required: true
     },
-    password:{
-        type:String,
-        required:true,
-        minlength:5
+    email: {
+        type: String,
+        unique: true,
+        required: true,
     },
-    role:{
-        type:Number,
-        required:true,
-        default:0
-    }
+    password: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    logoUrl: {
+        type: String
+    },
+    addresses: [{
+        type: String
+    }],
+    favoriteFood: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Products'
+    }]
 },{timestamps:true});
+
+usersSchema.virtual("fullName")
+           .get(function(){
+            return this.firstName+" "+this.lastName;
+           });
 
 const Users = mongoose.model("Users",usersSchema);
 

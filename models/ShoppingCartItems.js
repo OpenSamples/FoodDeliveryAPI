@@ -2,22 +2,28 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const shoppingCartItemsSchema = new Schema({
-    price: {
-        type: Number,
-    },
-    qty: {
-        type: Number,
-    },
     totalAmount: {
         type: Number,
+        required: true
     },
-    productId:{
-        type: Schema.Types.ObjectId,
-        ref:"Products",
-    },
+    products: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Products',
+            required: true
+        },
+        price: {
+            type: Number,
+            required: true
+        },
+        qty: {
+            type: Number,
+            required: true
+        }
+    }],
     userId: {
-        type: Schema.Types.ObjectId,
-        ref:"Users",
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
         required: true
     }
 }, { timestamps: true });
