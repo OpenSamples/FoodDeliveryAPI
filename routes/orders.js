@@ -3,35 +3,36 @@ const Orders = require("../controllers/OrdersController");
 
 /*
 Orders
-- PlaceOrder - POST: api/Orders (Sadrzi niz OrderDetails...svaki OrderDetails sadrzi jedan Product koji je User izabrao)
-- OrderDetails - GET: api/Orders/OrderDetails/4(OrderDetails Id)
+- PlaceOrder - POST: api/Orders
+- OrderDetails - GET: api/Orders/OrderDetails/4(Order Id)
 - OrdersByUser - GET: api/Orders/OrdersByUser/3(User Id)
 */
 
 router.post("/", async (req, res) => {
-    const ordersData = req.body;
+    const orderData = req.body;
     try {
-        //await Orders.add(ordersData);
-        res.json("hello");
+        const newOrderByUser = await Orders.placeOrder(orderData);
+        res.status(201).json(newOrderByUser);
     } catch (error) {
-        res.status(403).json(error);
+      res.status(403).json(error);
     }
 });
 
 router.get("/order-details/:orderId", async (req, res) => {
     try {
-
+     const orderDetailsByOrderId = await Orders.getOrderDetails(req.params.orderId);
+     res.json(orderDetailsByOrderId);
     } catch (error) {
-        res.send("Error in getting order details: "+error);
+        res.status(403).json(error);
     }
 });
 
-router.get("/orders-by-users/:userId", async (req, res) => {
+router.get("/orders-by-user/:userId", async (req, res) => {
     try {
-        const ordersByUser = await Orders.findByUser(req.params.userId);
-        res.json(ordersByUser);
+       const ordersByUser = await Orders.getOrdersByUserId(req.params.userId);
+       res.json(ordersByUser);
     } catch (error) {
-        res.send("Error in getting orders by user: "+error);
+        res.status(403).json(error);
     }
 });
 

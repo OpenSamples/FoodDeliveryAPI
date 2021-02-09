@@ -22,11 +22,13 @@ const orderDetailsSchema = new Schema({
         }
     }],
     orderId: {
-        type: Number,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Orders',
         required: true
     }
 }, { timestamps: true });
+
+
 
 const Order_Details = mongoose.model("Order_Details", orderDetailsSchema);
 
