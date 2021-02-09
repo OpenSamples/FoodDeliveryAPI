@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const shoppingCartItemsSchema = new Schema({
-    totalAmount: {
+    /*totalAmount: {
         type: Number,
         required: true
-    },
+    },*/
     products: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -27,6 +27,15 @@ const shoppingCartItemsSchema = new Schema({
         required: true
     }
 }, { timestamps: true });
+
+shoppingCartItemsSchema.virtual("totalAmount")
+    .get(function () {
+        let totalAmount = 0;
+        this.products.map(product => {
+            totalAmount += (product.price * product.qty);
+        });
+        return totalAmount;
+    });
 
 const Shopping_cart_items = mongoose.model("Shopping_cart_items", shoppingCartItemsSchema);
 

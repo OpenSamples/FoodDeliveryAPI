@@ -1,60 +1,72 @@
 const router = require("express").Router();
 const Shopping_cart_items = require("../controllers/ShoppingCartItemsController");
 const Products = require("../controllers/ProductsController");
+const Users = require("../controllers/UsersController");
 
 /*
 ShopingCartItems
 - AddToCart - POST: api/ShoppingCartItems/4(Product ID)
 - ShoppingCartTotalPrice - GET: api/ShoppingCartItems/SubTotal/3(SciId)
-- GetShoppingCartItems - GET: api/ShoppingCartItems/3(SciId)
+- GetShoppingCartItemsByUserId - GET: api/ShoppingCartItems/3(userId)
 - ItemsInCart - GET: api/ShoppingCartItems/TotalItems/3
+- RemoveProductFromUsersShoppingCart - POST api/ShoppingCartItems/remove-product/4 (User ID)
 - ClearShoppingCart - DEL: api/ShoppingCartItems/3
 */
 
 router.post("/:productId", async (req, res) => {
-    const shoppingCartItemData = req.body;
-    const productData = await Products.findOneById(req.params.productId);
+    const data = req.body;
     try {
-        const sci = await Shopping_cart_items.addToCart(productData,shoppingCartItemData);
-        res.json(sci);
+        await Shopping_cart_items.addToCart(data, req.params.productId);
+        const user = await Users.getUserById(data.userId);
+        res.status(201).json({ msg: "Product added to cart that belongs to user: " + user.firstName })
     } catch (error) {
-        res.send("Error in getting shopping cart items: "+error);
+        res.status(403).json(error);
     }
 });
 
-router.get("/sub-total/:userId", async (req, res) => {
+router.get("/:userId", async (req, res) => {
     try {
-        const shoppingCartTotalPrice = await Shopping_cart_items.getTotalPrice(req.params.userId);
-        res.json(shoppingCartTotalPrice);
+        const usersShoppingCart = await Shopping_cart_items.getShoppingCartItemsByUserId(req.params.userId);
+        res.json(usersShoppingCart);
     } catch (error) {
-        res.send("Error in getting shopping cart items: "+error);
+        res.status(403).json(error);
     }
 });
 
-router.get("/all-items/:userId", async (req, res) => {
+router.get("/sub-total/:userId",async(req,res)=>{
     try {
-        const allShoppingCartItems = await Shopping_cart_items.getItems(req.params.userId);
-        res.json(allShoppingCartItems);
+        const totalAmount = await Shopping_cart_items.getTotalPriceAmount(req.params.userId);
+        res.json(totalAmount);
     } catch (error) {
-        res.send("Error in getting shopping cart items: "+error);
+        res.status(403).json(error);
     }
 });
 
-router.get("/total-items/:userId", async (req, res) => {
+router.get("/total-items/:userId",async(req,res)=>{
     try {
-        const totalItems = await Shopping_cart_items.getTotalItems(req.params.userId);
+        const totalItems = await Shopping_cart_items.getNumberOfProductsInCart(req.params.userId);
         res.json(totalItems);
     } catch (error) {
-        res.send("Error in getting shopping cart items: "+error);
+        res.status(403).json(error);
     }
 });
 
-router.post("/remove-item/:sciId", async (req, res) => {
+router.delete("/remove-product/:userId",async(req,res)=>{
+    const productToBeRemoved = req.body.productId;
     try {
-        const deletedItem = await Shopping_cart_items.clearShoppingCart(req.params.sciId);
-        res.json(deletedItem);
+        await Shopping_cart_items.removeProductFromShoppingCart(req.params.userId,productToBeRemoved);
+        res.json({msg:"Product removed from Shopping Cart"});
     } catch (error) {
-        res.send("Error in getting shopping cart items: "+error);
+        res.status(403).json(error);
+    }
+});
+
+router.post("/clear-cart/:userId",async(req,res)=>{
+    try {
+        await Shopping_cart_items.clearShoppingCart(req.params.userId);
+        res.json({msg:"Shopping cart cleared. It is empty now."});
+    } catch (error) {
+        res.status(403).json(error);
     }
 });
 

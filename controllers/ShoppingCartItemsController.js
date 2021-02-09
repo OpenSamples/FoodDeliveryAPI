@@ -7,21 +7,30 @@ ShopingCartItems
 - ShoppingCartTotalPrice - GET: api/ShoppingCartItems/SubTotal/3(SciId)
 - GetShoppingCartItems - GET: api/ShoppingCartItems/3(SciId)
 - ItemsInCart - GET: api/ShoppingCartItems/TotalItems/3
+- RemoveProductFromUsersShoppingCart - POST api/ShoppingCartItems/remove-product/4 (User ID)
 - ClearShoppingCart - DEL: api/ShoppingCartItems/3
 */
 
-
-function addToCart(productData,shoppingCartItemsData){
+function addToCart(data,productId){
     return new Promise(async(resolve,reject)=>{
         try {
-            const newSci = await Shopping_cart_items.create({
-                price:productData.price,
-                qty:shoppingCartItemsData.qty,
-                totalAmount:productData.price*shoppingCartItemsData.qty,
-                productId:productData.id,
-                userId:shoppingCartItemsData.userId
-            });
-            resolve(newSci);
+            const shoppingCartItems = await Shopping_cart_items.findOne({userId:data.userId});
+            const product = await Products.findOne({_id:productId});
+            const productObject = {
+                productId:product.id,
+                price:product.price,
+                qty:data.qty
+            };
+            if(shoppingCartItems){
+                resolve(Shopping_cart_items.findOneAndUpdate({userId:data.userId},{
+                    $push:{products:productObject}
+                }));
+            }else{
+                resolve(Shopping_cart_items.create({
+                    products:productObject,
+                    userId:data.userId
+                }));
+            }
         } catch (error) {
             console.log(error);
             reject(false);
@@ -29,15 +38,10 @@ function addToCart(productData,shoppingCartItemsData){
     });
 }
 
-function getTotalPrice(userId){
-    return new Promise(async (resolve,reject)=>{
+function getShoppingCartItemsByUserId(userId){
+    return new Promise((resolve,reject)=>{
         try {
-            const allShoppingCartItemsByUser = await Shopping_cart_items.find({userId:userId});
-            let totalPrice = 0 ;
-            allShoppingCartItemsByUser.map(item=>{
-                totalPrice+=item.totalAmount
-            });
-            resolve(totalPrice);
+            resolve(Shopping_cart_items.findOne({userId:userId}));
         } catch (error) {
             console.log(error);
             reject(false);
@@ -45,15 +49,11 @@ function getTotalPrice(userId){
     });
 }
 
-function getItems(userId){
+function getTotalPriceAmount(userId){
     return new Promise(async(resolve,reject)=>{
         try {
-            const allShoppingCartItems = await Shopping_cart_items.find({userId:userId});
-            const productsIds = allShoppingCartItems.map(item=>{
-                return item.productId
-            });
-            const products = await Products.find({_id:{$in:productsIds}});
-            resolve(products);
+            const sci = await Shopping_cart_items.findOne({userId:userId});
+            resolve(sci.totalAmount);
         } catch (error) {
             console.log(error);
             reject(false);
@@ -61,10 +61,11 @@ function getItems(userId){
     });
 }
 
-function getTotalItems(userId){
-    return new Promise((resolve,reject)=>{
+function getNumberOfProductsInCart(userId){
+    return new Promise(async(resolve,reject)=>{
         try {
-            resolve(Shopping_cart_items.countDocuments({userId:userId}));
+            const sci = await Shopping_cart_items.findOne({userId:userId});
+            resolve(sci.products.length);
         } catch (error) {
             console.log(error);
             reject(false);
@@ -72,10 +73,46 @@ function getTotalItems(userId){
     });
 }
 
-function clearShoppingCart(sciId){
-    return new Promise((resolve,reject)=>{
+function removeProductFromShoppingCart(userId,productId){
+    return new Promise(async(resolve,reject)=>{
         try {
-            resolve(Shopping_cart_items.findOneAndDelete({_id:sciId}));
+            const productToBeRemoved = await Products.findOne({_id:productId});
+            resolve(
+                Shopping_cart_items.findOneAndUpdate({userId:userId},{
+                    $pull: { products: {productId:productToBeRemoved.id}}
+                })
+            );
+        } catch (error) {
+            console.log(error);
+            reject(false);
+        }
+    });
+}
+
+//Clearing array of Products from Shopping Cart without deleting ShoppingCartItems
+/*
+function clearShoppingCart(userId){
+    return new Promise((resovle,reject)=>{
+        try {
+            resovle(
+                Shopping_cart_items.findOneAndUpdate({userId:userId},{
+                    products:[]
+                })
+            );
+        } catch (error) {
+            console.log(error);
+            reject(false);
+        }
+    });
+}
+*/
+
+function clearShoppingCart(userId){
+    return new Promise((resovle,reject)=>{
+        try {
+            resovle(
+                Shopping_cart_items.findOneAndDelete({userId:userId})
+            );
         } catch (error) {
             console.log(error);
             reject(false);
@@ -85,8 +122,9 @@ function clearShoppingCart(sciId){
 
 module.exports = {
     addToCart,
-    getTotalPrice,
-    getItems,
-    getTotalItems,
+    getShoppingCartItemsByUserId,
+    getTotalPriceAmount,
+    getNumberOfProductsInCart,
+    removeProductFromShoppingCart,
     clearShoppingCart
 };

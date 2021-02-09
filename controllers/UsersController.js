@@ -6,7 +6,10 @@ const userValidation = require("../validation/userValidation");
 Users
 AddNewUser - POST : api/Users
 GetAllUsers - GET : api/Users
+GetUserById - GET : api/Users/4 (User Id)
 GetFavoriteFoodByUser - GET : api/Users/FavoriteFood/4 (User ID);
+AddFavoriteFood - POST : api/Users/AddFavoriteFood/5 (Product ID);
+RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 */
 
 function addUser(data) {
@@ -23,6 +26,17 @@ function addUser(data) {
                     resolve(Users.create(data));
                 }
             }
+        } catch (error) {
+            console.log(error);
+            reject(false);
+        }
+    });
+}
+
+function getUserById(userId){
+    return new Promise(async (resolve, reject) => {
+        try {
+           resolve(Users.findOne({_id:userId}));
         } catch (error) {
             console.log(error);
             reject(false);
@@ -88,6 +102,7 @@ function removeFavoriteFood(userId,productId) {
 module.exports = {
     addUser,
     getAllUsers,
+    getUserById,
     getFavoriteFoodByUser,
     addFavoriteFood,
     removeFavoriteFood

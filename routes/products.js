@@ -12,6 +12,7 @@ Products
 - AddReview - POST : api/Products/Review
 - GetAllReviewsByProduct - GET : api/Products/Reviews/5(Product ID)
 - GetAverageRatingByProduct - GET : api/Products/AverageRating/5 (Product ID)
+- GetAllProductsComments - GET : api/Products/Comments/5 (Product ID);
 */
 
 router.post("/", async (req, res) => {
