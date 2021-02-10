@@ -3,6 +3,7 @@ const Users = require("../models/Users");
 const Shopping_cart_items_model = require("../models/ShoppingCartItems");
 const OrderDetails_controller = require("./OrderDetailsController");
 const Shopping_cart_items_controller = require("./ShoppingCartItemsController");
+const orderValidation = require("../validation/orderValidation");
 
 /*
 Orders
@@ -13,21 +14,26 @@ sci = shopping cart items
 */
 
 function placeOrder(orderData) {
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            const user = await Users.findOne({_id:orderData.userId}); 
-            const sci = await Shopping_cart_items_model.findOne({userId:user.id});
-            const order = await Orders.create({
-                fullName:user.fullName,
-                address:orderData.address,
-                phone:orderData.phone,
-                orderTotal:sci.totalAmount,
-                orderPlaced:getTodaysDate(),
-                userId:user._id
-            });
-            await OrderDetails_controller.createOrderDetails(sci.totalAmount,order._id,sci.products);
-            await Shopping_cart_items_controller.clearShoppingCart(user._id);
-            resolve(order);
+            const validator = await orderValidation(orderData);
+            if (validator.length > 0) {
+                resolve(validator);
+            } else {
+                const user = await Users.findOne({ _id: orderData.userId });
+                const sci = await Shopping_cart_items_model.findOne({ userId: user.id });
+                const order = await Orders.create({
+                    fullName: user.fullName,
+                    address: orderData.address,
+                    phone: orderData.phone,
+                    orderTotal: sci.totalAmount,
+                    orderPlaced: getTodaysDate(),
+                    userId: user._id
+                });
+                await OrderDetails_controller.createOrderDetails(sci.totalAmount, order._id, sci.products);
+                await Shopping_cart_items_controller.clearShoppingCart(user._id);
+                resolve(order);
+            }
         } catch (error) {
             console.log(error);
             reject(false);
@@ -35,8 +41,8 @@ function placeOrder(orderData) {
     });
 }
 
-function getOrderDetails(orderId){
-    return new Promise((resolve,reject)=>{
+function getOrderDetails(orderId) {
+    return new Promise((resolve, reject) => {
         try {
             resolve(
                 OrderDetails_controller.getOrderDetailsByOrderId(orderId)
@@ -49,11 +55,11 @@ function getOrderDetails(orderId){
 }
 
 
-function getOrdersByUserId(userId){
-    return new Promise((resolve,reject)=>{
+function getOrdersByUserId(userId) {
+    return new Promise((resolve, reject) => {
         try {
             resolve(
-                Orders.find({userId:userId}).lean().sort({createdAt:-1})
+                Orders.find({ userId: userId }).lean().sort({ createdAt: -1 })
             );
         } catch (error) {
             console.log(error);
