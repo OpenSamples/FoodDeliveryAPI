@@ -13,6 +13,7 @@ Products
 - GetAllReviewsByProduct - GET : api/Products/Reviews/5(Product ID)
 - GetAverageRatingByProduct - GET : api/Products/AverageRating/5 (Product ID)
 - GetAllProductsComments - GET : api/Products/Comments/5 (Product ID);
+- RemoveReview - POST : api/Products/remove-review/:5 (Product ID);
 */
 
 router.post("/", async (req, res) => {
@@ -98,5 +99,14 @@ router.get("/comments/:productId",async(req,res)=>{
     }
 });
 
+router.post("/remove-review/:productId",async(req,res)=>{
+    const userId = req.body.userId;
+    try {
+        await Products.removeReview(userId,req.params.productId);
+        res.json({msg:"Review removed."});
+    } catch (error) {
+        res.status(403).json(error);
+    }
+});
 
 module.exports = router;

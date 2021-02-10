@@ -142,6 +142,21 @@ function calculateAverage(arrayOfNumbers){
     return  Math.round(average * 10) / 10;
 }
 
+function removeReview(userId,productId){
+    return new Promise(async(resolve,reject)=>{
+        try {
+            resolve(
+                Products.findOneAndUpdate({_id:productId},{
+                  $pull:{reviews:{userId:userId}}
+                })
+            ) 
+        } catch (error) {
+            console.log(error);
+            reject(false);
+        }
+    });
+}
+
 module.exports = {
     createProduct,
     getAllProducts,
@@ -151,5 +166,6 @@ module.exports = {
     addReview,
     getAllReviewsOfProduct,
     getAverageRatingOfProduct,
-    getAllCommentsOfProduct
+    getAllCommentsOfProduct,
+    removeReview
 }
