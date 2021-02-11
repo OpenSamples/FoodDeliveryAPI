@@ -36,6 +36,8 @@ const usersSchema = new Schema({
     }]
 },{timestamps:true});
 
+//Virutal function called fullName which we can use
+//to get users full name at some point
 usersSchema.virtual("fullName")
            .get(function(){
             return this.firstName+" "+this.lastName;

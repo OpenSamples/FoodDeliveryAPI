@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const shoppingCartItemsSchema = new Schema({
-    /*totalAmount: {
-        type: Number,
-        required: true
-    },*/
     products: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -28,6 +24,9 @@ const shoppingCartItemsSchema = new Schema({
     }
 }, { timestamps: true });
 
+//Virtuel function called totalAmount which goes through array of objects called products
+//and for every object multiplies its price with quantity and adds up in totalAmount which is returned
+//we can use this whenever we want
 shoppingCartItemsSchema.virtual("totalAmount")
     .get(function () {
         let totalAmount = 0;

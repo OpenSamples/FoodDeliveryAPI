@@ -1,12 +1,17 @@
 const router = require("express").Router();
+//Categories controller
 const Categories = require("../controllers/CategoriesController");
 
 /*
+Routes for categories
+
 Categories
 - GetCategories - GET: api/Categories
--CreateCategories - POST: api/Categories
+- CreateCategories - POST: api/Categories
 */
 
+//Create new category fetching req.body and passing it as parameter to createCategories function
+//tested:working
 router.post("/",async(req,res)=>{
     const categoriesData = req.body;
     try {
@@ -17,6 +22,9 @@ router.post("/",async(req,res)=>{
     }
 });
 
+
+//Get all categories
+//tested:working
 router.get("/",async(req,res)=>{
     try {
         const allCategories = await Categories.getAllCategories();

@@ -11,6 +11,10 @@ AddFavoriteFood - POST : api/Users/AddFavoriteFood/5 (Product ID);
 RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 */
 
+//JUST FOR TESTING...this can be later implemented as Users.registerNewUser
+//we are passing data through form and fetching it here with req.body as userData
+//then we pass userData as parameter to the addUser function 
+//tested:working
 router.post("/",async(req,res)=>{
     const userData = req.body;
     try {
@@ -21,6 +25,8 @@ router.post("/",async(req,res)=>{
     }
 });
 
+//Getting all users
+//tested:working
 router.get("/",async(req,res)=>{
     try {
       const allUsers = await Users.getAllUsers();
@@ -30,6 +36,8 @@ router.get("/",async(req,res)=>{
     }
 });
 
+//Getting user by id
+//tested:working
 router.get("/:userId",async(req,res)=>{
     try {
         const userById = await Users.getUserById(req.params.userId);
@@ -39,6 +47,9 @@ router.get("/:userId",async(req,res)=>{
     }
 }); 
 
+//Getting favorite food by certain user which we'll find by passing his id inisde url(req.params.userId) and passing that
+//id as parameter to the getFavoriteFoodByUser
+//tested:working
 router.get("/favorite-food/:userId",async(req,res)=>{
     try {
       const favoriteFoodByUser = await Users.getFavoriteFoodByUser(req.params.userId);
@@ -48,6 +59,10 @@ router.get("/favorite-food/:userId",async(req,res)=>{
     }
 });
 
+//IDEA: Logged user can add favorite food. We are getting product(favorite food) which user decided to add 
+//by getting productId from url and we are getting users id with req.body.userId (this can later be changed as we are going to have
+//something like req.user or logged user data). We pass those two as parameters to addFavoriteFood function 
+//tested:working
 router.post("/add-favorite-food/:productId",async(req,res)=>{
     const userId = req.body.userId;
     try {
@@ -58,6 +73,9 @@ router.post("/add-favorite-food/:productId",async(req,res)=>{
     }
 });
 
+//IDEA: Logged user can remove some product from his favorite food we are doing the same as above just now 
+//we remove that product from favoriteFood array
+//tested:working
 router.post("/remove-favorite-food/:productId",async(req,res)=>{
     const userId = req.body.userId;
     try {

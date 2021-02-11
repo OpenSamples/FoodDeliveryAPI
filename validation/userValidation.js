@@ -1,3 +1,11 @@
+//THIS CAN BE LATER IMPLENENTED WHEN USER IS TRYING TO REGISTER TO WEBSITE
+//1.Fetching all variables from userData object which we passed in Users controller function addUser
+//2.Making regex constants which we use to test variables 
+//3.Making empty array called errors in case that some variable doesn't pass required content
+//If we bump into some invalid data like for example invalid form of email or password lenght is too short
+//we fill errors array with object that has certain message which indicates to that error
+//lastly we are returning errors array which will either be empty of full with errors
+
 module.exports = (userData) => {
     const { firstName,lastName, email, password, role } = userData;
     const rePasswordNumber = /[0-9]/;

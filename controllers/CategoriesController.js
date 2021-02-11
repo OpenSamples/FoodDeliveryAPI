@@ -1,11 +1,22 @@
+//Categories Model
 const Categories = require("../models/Categories");
 
 /*
+Routes for categories
+
 Categories
 - GetCategories - GET: api/Categories
--CreateCategories - POST: api/Categories
+- CreateCategories - POST: api/Categories
 */
 
+//Adding new category 
+//JSON example of req.body(data)
+/*
+{
+    "name": "CategoryName",
+    "imageUrl": "ImageUrl",
+}    
+*/
 function createCategories(data){
     return new Promise((resolve,reject)=>{
         try {
@@ -17,6 +28,7 @@ function createCategories(data){
     });
 }
 
+//Getting all categories sorted by creation date
 function getAllCategories(){
     return new Promise((resolve,reject)=>{
         try {

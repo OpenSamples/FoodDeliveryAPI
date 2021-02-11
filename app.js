@@ -9,6 +9,7 @@ app.use(express.json());
 const connection = process.env.MONGODB_URI || "mongodb://localhost:27017/DostavaHraneApi";
 const port = process.env.PORT || 3000;
 
+//All routes
 app.use("/api/users", require("./routes/users"));
 app.use("/api/accounts", require("./routes/accounts"));
 app.use("/api/categories", require("./routes/categories"));
@@ -20,6 +21,7 @@ const connect = () => {
     return mongoose.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true });
 }
 
+//First we connect to database then we are running the server
 connect()
     .then(async connection => {
         console.log("Successfully connected to database");

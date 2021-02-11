@@ -1,6 +1,7 @@
 const router = require("express").Router();
+//Shopping_cart_items Controller
 const Shopping_cart_items = require("../controllers/ShoppingCartItemsController");
-const Products = require("../controllers/ProductsController");
+//Users controller
 const Users = require("../controllers/UsersController");
 
 /*
@@ -13,6 +14,9 @@ ShopingCartItems
 - ClearShoppingCart - DEL: api/ShoppingCartItems/3
 */
 
+//IDEA: Logged user can add product to shopping cart we are fetching product id from url and userId from req.body
+//this can be changed later we are passing those variables as parameters to the addToCart function
+//tested:working
 router.post("/:productId", async (req, res) => {
     const data = req.body;
     try {
@@ -24,6 +28,9 @@ router.post("/:productId", async (req, res) => {
     }
 });
 
+//Get ShoppingCart by user whose id is provided in url(req.params.userId), its passed as parameter to function
+//getShoppingCartItemsByUserId 
+//tested:working
 router.get("/:userId", async (req, res) => {
     try {
         const usersShoppingCart = await Shopping_cart_items.getShoppingCartItemsByUserId(req.params.userId);
@@ -33,6 +40,9 @@ router.get("/:userId", async (req, res) => {
     }
 });
 
+//Getting total amount of every product in cart (getting total price of Shopping cart) 
+//we are passing req.params.userId as parameter to getTotalPriceAmount function
+//tested:working
 router.get("/sub-total/:userId",async(req,res)=>{
     try {
         const totalAmount = await Shopping_cart_items.getTotalPriceAmount(req.params.userId);
@@ -42,6 +52,8 @@ router.get("/sub-total/:userId",async(req,res)=>{
     }
 });
 
+//Getting total number of products in ShoppingCart
+//tested:working
 router.get("/total-items/:userId",async(req,res)=>{
     try {
         const totalItems = await Shopping_cart_items.getNumberOfProductsInCart(req.params.userId);
@@ -51,7 +63,10 @@ router.get("/total-items/:userId",async(req,res)=>{
     }
 });
 
-router.delete("/remove-product/:userId",async(req,res)=>{
+//IDEA: Logged user can remove product he added from shopping cart we are getting userId from url and 
+//productId from req.body those two are being passed as parameters to the removeProductFromShoppingCart function
+//tested:working
+router.post("/remove-product/:userId",async(req,res)=>{
     const productToBeRemoved = req.body.productId;
     try {
         await Shopping_cart_items.removeProductFromShoppingCart(req.params.userId,productToBeRemoved);
@@ -61,6 +76,8 @@ router.delete("/remove-product/:userId",async(req,res)=>{
     }
 });
 
+//User can clear shopping cart by clearing it he is actually deleting it
+//tested:working
 router.post("/clear-cart/:userId",async(req,res)=>{
     try {
         await Shopping_cart_items.clearShoppingCart(req.params.userId);

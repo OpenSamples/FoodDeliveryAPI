@@ -8,6 +8,9 @@ Orders
 - OrdersByUser - GET: api/Orders/OrdersByUser/3(User Id)
 */
 
+//IDEA: After logged user decides he/she is ready to continue with his shoppingCart and proceed to order
+//new Order will be created in placeOrder function we pass orderData (from req.body)
+//tested:working
 router.post("/", async (req, res) => {
     const orderData = req.body;
     try {
@@ -18,6 +21,8 @@ router.post("/", async (req, res) => {
     }
 });
 
+//Getting order details 
+//tested:working
 router.get("/order-details/:orderId", async (req, res) => {
     try {
      const orderDetailsByOrderId = await Orders.getOrderDetails(req.params.orderId);
@@ -27,6 +32,8 @@ router.get("/order-details/:orderId", async (req, res) => {
     }
 });
 
+//Getting orders by user
+//tested:working
 router.get("/orders-by-user/:userId", async (req, res) => {
     try {
        const ordersByUser = await Orders.getOrdersByUserId(req.params.userId);

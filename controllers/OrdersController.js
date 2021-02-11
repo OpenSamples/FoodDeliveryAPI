@@ -1,8 +1,14 @@
+//Orders Model
 const Orders = require("../models/Orders");
+//Users Model
 const Users = require("../models/Users");
+//Shopping Cart Items Model
 const Shopping_cart_items_model = require("../models/ShoppingCartItems");
+//OrdersDetails controller
 const OrderDetails_controller = require("./OrderDetailsController");
+//Shopping cart items controller
 const Shopping_cart_items_controller = require("./ShoppingCartItemsController");
+//orderValidation from validation folder
 const orderValidation = require("../validation/orderValidation");
 
 /*
@@ -13,6 +19,24 @@ Orders
 sci = shopping cart items
 */
 
+
+//User can placeOrder in orderData we have an object (from req.body) which has:
+//JSON example
+/*
+{
+    "userId":"60255c0c528960047090f565",
+    "phone":"123456789",
+    "address":"Admirala Zmajevica 48"
+}
+*/
+//1.We pass orderData to orderValidation (asynchronous function) which will like in userValidation return an array of errors
+//2.If validator(array of errors) has length greater than 0 that means we have errors and we resolve them
+//3.if validator is empty we proceed 
+//4.We find user from orderData.userId (user)
+//5.We find Shopping_cart_items by searching for userId from user.id (sci)
+//6.We create new order with data provided by user,sci,orderData
+//7.We create OrderDetails with parameters sci.totalAmount, order._id, sci.products
+//8. We clear shoppingCart that belongs to user who placed order
 function placeOrder(orderData) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -41,6 +65,7 @@ function placeOrder(orderData) {
     });
 }
 
+//Getting order details
 function getOrderDetails(orderId) {
     return new Promise((resolve, reject) => {
         try {
@@ -54,7 +79,7 @@ function getOrderDetails(orderId) {
     });
 }
 
-
+//Getting orders by user (by his id)
 function getOrdersByUserId(userId) {
     return new Promise((resolve, reject) => {
         try {
@@ -69,7 +94,7 @@ function getOrdersByUserId(userId) {
 }
 
 
-
+//This is returning wrong date(one day early) we need to provide new one
 function getTodaysDate() {
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');

@@ -1,5 +1,7 @@
 const OrderDetails = require("../models/OrderDetails");
 
+
+//Creating order details
 function createOrderDetails(totalAmount,orderId,products){
     return new Promise((resolve,reject)=>{
         try {
@@ -17,6 +19,7 @@ function createOrderDetails(totalAmount,orderId,products){
     });
 }
 
+//Getting orderDetails by orderId
 function getOrderDetailsByOrderId(orderId){
     return new Promise((resolve,reject)=>{
         try {
