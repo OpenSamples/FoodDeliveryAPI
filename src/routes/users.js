@@ -30,7 +30,7 @@ router.post("/",async(req,res)=>{
 router.get("/",async(req,res)=>{
     try {
       const allUsers = await Users.getAllUsers();
-      res.json(allUsers);
+      res.status(200).json(allUsers);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -41,7 +41,7 @@ router.get("/",async(req,res)=>{
 router.get("/:userId",async(req,res)=>{
     try {
         const userById = await Users.getUserById(req.params.userId);
-        res.json(userById);
+        res.status(200).json(userById);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -53,7 +53,7 @@ router.get("/:userId",async(req,res)=>{
 router.get("/favorite-food/:userId",async(req,res)=>{
     try {
       const favoriteFoodByUser = await Users.getFavoriteFoodByUser(req.params.userId);
-      res.json(favoriteFoodByUser);
+      res.status(200).json(favoriteFoodByUser);
     } catch (error) {
         res.status(403).json(error);
     }

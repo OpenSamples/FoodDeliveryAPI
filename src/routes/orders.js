@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
 router.get("/order-details/:orderId", async (req, res) => {
     try {
      const orderDetailsByOrderId = await Orders.getOrderDetails(req.params.orderId);
-     res.json(orderDetailsByOrderId);
+     res.status(200).json(orderDetailsByOrderId);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -37,7 +37,7 @@ router.get("/order-details/:orderId", async (req, res) => {
 router.get("/orders-by-user/:userId", async (req, res) => {
     try {
        const ordersByUser = await Orders.getOrdersByUserId(req.params.userId);
-       res.json(ordersByUser);
+       res.status(200).json(ordersByUser);
     } catch (error) {
         res.status(403).json(error);
     }

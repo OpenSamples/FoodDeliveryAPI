@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
     try {
         const allProducts = await Products.getAllProducts();
-        res.json(allProducts);
+        res.status(200).json(allProducts);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -47,7 +47,7 @@ router.get("/", async (req, res) => {
 router.get("/:productId", async (req, res) => {
     try {
         const productById = await Products.getProductById(req.params.productId);
-        res.json(productById);
+        res.statis(200).json(productById);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -59,7 +59,7 @@ router.get("/:productId", async (req, res) => {
 router.get("/products-by-category/:categoryId", async (req, res) => {
     try {
         const productsByCategory = await Products.getProductsByCategory(req.params.categoryId);
-        res.json(productsByCategory);
+        res.status(200).json(productsByCategory);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -70,7 +70,7 @@ router.get("/products-by-category/:categoryId", async (req, res) => {
 router.get("/show/popular-products", async (req, res) => {
     try {
         const popularProducts = await Products.getPopularProducts();
-        res.json(popularProducts);
+        res.status(200).json(popularProducts);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -97,7 +97,7 @@ router.post("/add-review/:productId",async(req,res)=>{
 router.get("/reviews/:productId",async(req,res)=>{
     try {
         const productReviews = await Products.getAllReviewsOfProduct(req.params.productId);
-        res.json(productReviews);
+        res.status(200).json(productReviews);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -109,7 +109,7 @@ router.get("/reviews/:productId",async(req,res)=>{
 router.get("/average-rating/:productId",async(req,res)=>{
     try {
         const productReviews = await Products.getAverageRatingOfProduct(req.params.productId);
-        res.json(productReviews);
+        res.status(200).json(productReviews);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -120,7 +120,7 @@ router.get("/average-rating/:productId",async(req,res)=>{
 router.get("/comments/:productId",async(req,res)=>{
     try {
         const productComments = await Products.getAllCommentsOfProduct(req.params.productId);
-        res.json(productComments);
+        res.status(200).json(productComments);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -135,7 +135,7 @@ router.post("/remove-review/:productId",async(req,res)=>{
     const userId = req.body.userId;
     try {
         await Products.removeReview(userId,req.params.productId);
-        res.json({msg:"Review removed."});
+        res.status(200).json({msg:"Review removed."});
     } catch (error) {
         res.status(403).json(error);
     }

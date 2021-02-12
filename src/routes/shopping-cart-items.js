@@ -34,7 +34,7 @@ router.post("/:productId", async (req, res) => {
 router.get("/:userId", async (req, res) => {
     try {
         const usersShoppingCart = await Shopping_cart_items.getShoppingCartItemsByUserId(req.params.userId);
-        res.json(usersShoppingCart);
+        res.status(200).json(usersShoppingCart);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -46,7 +46,7 @@ router.get("/:userId", async (req, res) => {
 router.get("/sub-total/:userId",async(req,res)=>{
     try {
         const totalAmount = await Shopping_cart_items.getTotalPriceAmount(req.params.userId);
-        res.json(totalAmount);
+        res.status(200).json(totalAmount);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -57,7 +57,7 @@ router.get("/sub-total/:userId",async(req,res)=>{
 router.get("/total-items/:userId",async(req,res)=>{
     try {
         const totalItems = await Shopping_cart_items.getNumberOfProductsInCart(req.params.userId);
-        res.json(totalItems);
+        res.status(200).json(totalItems);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -70,7 +70,7 @@ router.post("/remove-product/:userId",async(req,res)=>{
     const productToBeRemoved = req.body.productId;
     try {
         await Shopping_cart_items.removeProductFromShoppingCart(req.params.userId,productToBeRemoved);
-        res.json({msg:"Product removed from Shopping Cart"});
+        res.status(200).json({msg:"Product removed from Shopping Cart"});
     } catch (error) {
         res.status(403).json(error);
     }
@@ -81,7 +81,7 @@ router.post("/remove-product/:userId",async(req,res)=>{
 router.post("/clear-cart/:userId",async(req,res)=>{
     try {
         await Shopping_cart_items.clearShoppingCart(req.params.userId);
-        res.json({msg:"Shopping cart cleared. It is empty now."});
+        res.status(200).json({msg:"Shopping cart cleared. It is empty now."});
     } catch (error) {
         res.status(403).json(error);
     }
