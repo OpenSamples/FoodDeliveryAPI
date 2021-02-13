@@ -34,5 +34,10 @@ module.exports = (userData) => {
     if (role < 0 || role > 1) {
         errors.push({ msg: "Role must be equal to 0 or 1." });
     }
-    return errors;
+
+    return {
+        error: errors.length,
+        messages: errors,
+        status: 406
+    };
 };

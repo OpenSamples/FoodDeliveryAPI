@@ -21,7 +21,22 @@ router.post("/",async(req,res)=>{
         const newUser = await Users.addUser(userData);
         res.status(201).json(newUser);
     } catch (error) {
-        res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -29,10 +44,10 @@ router.post("/",async(req,res)=>{
 //tested:working
 router.get("/",async(req,res)=>{
     try {
-      const allUsers = await Users.getAllUsers();
-      res.status(200).json(allUsers);
+        const allUsers = await Users.getAllUsers();
+        res.status(200).json(allUsers);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -43,7 +58,7 @@ router.get("/:userId",async(req,res)=>{
         const userById = await Users.getUserById(req.params.userId);
         res.status(200).json(userById);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 }); 
 
@@ -52,10 +67,10 @@ router.get("/:userId",async(req,res)=>{
 //tested:working
 router.get("/favorite-food/:userId",async(req,res)=>{
     try {
-      const favoriteFoodByUser = await Users.getFavoriteFoodByUser(req.params.userId);
-      res.status(200).json(favoriteFoodByUser);
+        const favoriteFoodByUser = await Users.getFavoriteFoodByUser(req.params.userId);
+        res.status(200).json(favoriteFoodByUser);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -69,7 +84,22 @@ router.post("/add-favorite-food/:productId",async(req,res)=>{
         await Users.addFavoriteFood(userId,req.params.productId);
         res.status(201).json({msg:"Added new favorite food"});
     } catch (error) {
-        res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -82,7 +112,22 @@ router.post("/remove-favorite-food/:productId",async(req,res)=>{
         await Users.removeFavoriteFood(userId,req.params.productId);
         res.status(201).json({msg:"Removed favorite food"});
     } catch (error) {
-        res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 

@@ -25,7 +25,22 @@ router.post("/", async (req, res) => {
         const newProduct = await Products.createProduct(productData);
         res.status(201).json(newProduct);
     } catch (error) {
-        res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -36,7 +51,7 @@ router.get("/", async (req, res) => {
         const allProducts = await Products.getAllProducts();
         res.status(200).json(allProducts);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -49,7 +64,7 @@ router.get("/:productId", async (req, res) => {
         const productById = await Products.getProductById(req.params.productId);
         res.statis(200).json(productById);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -61,7 +76,7 @@ router.get("/products-by-category/:categoryId", async (req, res) => {
         const productsByCategory = await Products.getProductsByCategory(req.params.categoryId);
         res.status(200).json(productsByCategory);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -72,7 +87,7 @@ router.get("/show/popular-products", async (req, res) => {
         const popularProducts = await Products.getPopularProducts();
         res.status(200).json(popularProducts);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -87,7 +102,22 @@ router.post("/add-review/:productId",async(req,res)=>{
         await Products.addReview(review,req.params.productId);
         res.status(201).json({msg:"Review added successfully!"});
     } catch (error) {
-        res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -99,7 +129,7 @@ router.get("/reviews/:productId",async(req,res)=>{
         const productReviews = await Products.getAllReviewsOfProduct(req.params.productId);
         res.status(200).json(productReviews);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -111,7 +141,7 @@ router.get("/average-rating/:productId",async(req,res)=>{
         const productReviews = await Products.getAverageRatingOfProduct(req.params.productId);
         res.status(200).json(productReviews);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -122,7 +152,7 @@ router.get("/comments/:productId",async(req,res)=>{
         const productComments = await Products.getAllCommentsOfProduct(req.params.productId);
         res.status(200).json(productComments);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -137,7 +167,22 @@ router.post("/remove-review/:productId",async(req,res)=>{
         await Products.removeReview(userId,req.params.productId);
         res.status(200).json({msg:"Review removed."});
     } catch (error) {
-        res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 

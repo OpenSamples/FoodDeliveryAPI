@@ -17,7 +17,22 @@ router.post("/", async (req, res) => {
         const newOrderByUser = await Orders.placeOrder(orderData);
         res.status(201).json(newOrderByUser);
     } catch (error) {
-      res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -28,7 +43,7 @@ router.get("/order-details/:orderId", async (req, res) => {
      const orderDetailsByOrderId = await Orders.getOrderDetails(req.params.orderId);
      res.status(200).json(orderDetailsByOrderId);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -39,7 +54,7 @@ router.get("/orders-by-user/:userId", async (req, res) => {
        const ordersByUser = await Orders.getOrdersByUserId(req.params.userId);
        res.status(200).json(ordersByUser);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 

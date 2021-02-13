@@ -32,9 +32,13 @@ function createProduct(data){
     return new Promise((resolve,reject)=>{
         try {
             resolve(Products.create(data));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while creating a product!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -44,9 +48,13 @@ function getAllProducts(){
     return new Promise((resolve,reject)=>{
         try {
             resolve(Products.find({}).lean().sort({createdAt:-1}));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching products!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -56,9 +64,13 @@ function getProductById(productId){
     return new Promise((resolve,reject)=>{
         try {
             resolve(Products.find({_id:productId}));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching product!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -68,9 +80,13 @@ function getProductsByCategory(categoryId){
     return new Promise((resolve,reject)=>{
         try {
             resolve(Products.find({categoryId:categoryId}).lean().sort({createdAt:-1}));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching product!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -81,9 +97,13 @@ function getPopularProducts(){
     return new Promise((resolve,reject)=>{
         try {
             resolve(Products.find({isPopularProduct:true}));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching popular products!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -106,9 +126,13 @@ function addReview(reviewData,productId){
                 $push:{reviews:reviewData}
             });
             resolve(reviewProduct);
-         } catch (error) {
-            console.log(error);
-            reject(false);
+         } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while adding a review!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -119,9 +143,13 @@ function getAllReviewsOfProduct(productId){
         try {
             const productReviews = await Products.findOne({_id:productId});
             resolve(productReviews.reviews);
-         } catch (error) {
-            console.log(error);
-            reject(false);
+         } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching reviews!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -144,9 +172,13 @@ function getAverageRatingOfProduct(productId){
             }else{
                 resolve(calculateAverage(productRatings));
             }
-         } catch (error) {
-            console.log(error);
-            reject(false);
+         } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching product ratings!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -166,9 +198,13 @@ function getAllCommentsOfProduct(productId){
             }else{
                 resolve(productComments);
             }
-         } catch (error) {
-            console.log(error);
-            reject(false);
+         } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching product comments!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -184,9 +220,13 @@ function removeReview(userId,productId){
                   $pull:{reviews:{userId:userId}}
                 })
             ) 
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while removing review! ',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
