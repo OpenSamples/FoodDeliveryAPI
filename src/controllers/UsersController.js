@@ -38,19 +38,30 @@ function addUser(data) {
     return new Promise(async (resolve, reject) => {
         try {
             const validate = userValidation(data);
-            if(validate.length>0){
-                resolve(validate);
-            }else{
-                const userByEmail = await Users.findOne({email:data.email});
-                if(userByEmail){
-                    resolve({msg:"User with same data already exists in database."});
-                }else{
-                    resolve(Users.create(data));
-                }
+            if(validate.error){
+                reject(validate);
+                return
             }
-        } catch (error) {
-            console.log(error);
-            reject(false);
+
+            const userByEmail = await Users.findOne({email:data.email});
+            if(userByEmail){
+                reject({
+                    error: true,
+                    message: 'User with same data already exists in database.',
+                    status: 406
+                });
+                return
+            }
+
+            resolve(Users.create(data)); 
+            
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while adding new user!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -60,9 +71,13 @@ function getUserById(userId){
     return new Promise(async (resolve, reject) => {
         try {
            resolve(Users.findOne({_id:userId}));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching an user!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -72,9 +87,13 @@ function getAllUsers() {
     return new Promise((resolve, reject) => {
         try {
             resolve(Users.find({}).lean().sort({ createdAt: -1 }));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching users!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -88,9 +107,13 @@ function getFavoriteFoodByUser(userId) {
             const user = await Users.findOne({_id:userId});
             const favoriteFood = await Products.find({_id:{$in:user.favoriteFood}});
             resolve(favoriteFood);
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching user favorite foods!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -104,9 +127,13 @@ function addFavoriteFood(userId,productId) {
                 $push:{favoriteFood:productId}
             });
             resolve(user);
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while adding favorite food to user!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -120,9 +147,13 @@ function removeFavoriteFood(userId,productId) {
                 $pull:{favoriteFood:productId}
             });
             resolve(user);
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while removing favorite food from user!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
