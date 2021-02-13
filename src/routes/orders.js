@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
         const newOrderByUser = await Orders.placeOrder(orderData);
         res.status(201).json(newOrderByUser);
     } catch (error) {
-        res.status( error?.status || 403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -28,7 +28,7 @@ router.get("/order-details/:orderId", async (req, res) => {
      const orderDetailsByOrderId = await Orders.getOrderDetails(req.params.orderId);
      res.status(200).json(orderDetailsByOrderId);
     } catch (error) {
-        res.status( error?.status || 403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -39,7 +39,7 @@ router.get("/orders-by-user/:userId", async (req, res) => {
        const ordersByUser = await Orders.getOrdersByUserId(req.params.userId);
        res.status(200).json(ordersByUser);
     } catch (error) {
-        res.status( error?.status || 403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
