@@ -25,6 +25,21 @@ router.post("/", async (req, res) => {
         const newProduct = await Products.createProduct(productData);
         res.status(201).json(newProduct);
     } catch (error) {
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
         res.status( error.status || 403).json(error);
     }
 });
@@ -87,6 +102,21 @@ router.post("/add-review/:productId",async(req,res)=>{
         await Products.addReview(review,req.params.productId);
         res.status(201).json({msg:"Review added successfully!"});
     } catch (error) {
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
         res.status( error.status || 403).json(error);
     }
 });
@@ -137,6 +167,21 @@ router.post("/remove-review/:productId",async(req,res)=>{
         await Products.removeReview(userId,req.params.productId);
         res.status(200).json({msg:"Review removed."});
     } catch (error) {
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
         res.status( error.status || 403).json(error);
     }
 });

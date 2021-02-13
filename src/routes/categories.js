@@ -18,6 +18,21 @@ router.post("/",async(req,res)=>{
         const newCategory = await Categories.createCategories(categoriesData);
         res.status(201).json(newCategory);
     } catch (error) {
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
         res.status(error.status || 403).json(error);
     }
 });
