@@ -12,9 +12,13 @@ function createOrderDetails(totalAmount,orderId,products){
                     products:products
                 })
             );
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while creating an order!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -26,9 +30,13 @@ function getOrderDetailsByOrderId(orderId){
             resolve(
                 OrderDetails.findOne({orderId:orderId})
             );
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching order details!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }

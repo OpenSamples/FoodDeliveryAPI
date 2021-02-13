@@ -40,41 +40,54 @@ sci = shopping cart items
 function placeOrder(orderData) {
     return new Promise(async (resolve, reject) => {
         try {
-            const validator = await orderValidation(orderData);
-            if (validator.length > 0) {
-                resolve(validator);
-            } else {
-                const user = await Users.findOne({ _id: orderData.userId });
-                const sci = await Shopping_cart_items_model.findOne({ userId: user.id });
-                const order = await Orders.create({
-                    fullName: user.fullName,
-                    address: orderData.address,
-                    phone: orderData.phone,
-                    orderTotal: sci.totalAmount,
-                    orderPlaced: getTodaysDate(),
-                    userId: user._id
-                });
-                await OrderDetails_controller.createOrderDetails(sci.totalAmount, order._id, sci.products);
-                await Shopping_cart_items_controller.clearShoppingCart(user._id);
-                resolve(order);
+            const validator = orderValidation(orderData);
+            if (validator.error) {
+                reject(validator);
+                return
             }
-        } catch (error) {
-            console.log(error);
-            reject(false);
+
+            const user = await Users.findOne({ _id: orderData.userId });
+            const sci = await Shopping_cart_items_model.findOne({ userId: user.id });
+
+            const order = await Orders.create({
+                fullName: user.fullName,
+                address: orderData.address,
+                phone: orderData.phone,
+                orderTotal: sci.totalAmount,
+                orderPlaced: getTodaysDate(),
+                userId: user._id
+            });
+
+            try {
+                await OrderDetails_controller.createOrderDetails(sci.totalAmount, order._id, sci.products);
+    
+                await Shopping_cart_items_controller.clearShoppingCart(user._id);
+            } catch(e) {
+                reject(e)
+                return
+            }
+
+            resolve(order);   
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while placing an order!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
 
 //Getting order details
 function getOrderDetails(orderId) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            resolve(
-                OrderDetails_controller.getOrderDetailsByOrderId(orderId)
-            );
-        } catch (error) {
-            console.log(error);
-            reject(false);
+            const orderDetailsData = await OrderDetails_controller.getOrderDetailsByOrderId(orderId)
+
+            resolve(orderDetailsData);
+        } catch (err_msg) {
+            reject(err_msg)
         }
     });
 }
@@ -86,9 +99,13 @@ function getOrdersByUserId(userId) {
             resolve(
                 Orders.find({ userId: userId }).lean().sort({ createdAt: -1 })
             );
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching an order!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
