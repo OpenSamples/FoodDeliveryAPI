@@ -33,6 +33,10 @@ const validateUser = (data, create) => {
                 errors.push(`${key} must be a string!`)
             }
         }
+
+        if(key === 'role' && typeof data[key] !== 'number') {
+            errors.push('role must be a number!')
+        }
     }
 
     if(errors.length) {
