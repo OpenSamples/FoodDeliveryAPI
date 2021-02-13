@@ -40,8 +40,8 @@ sci = shopping cart items
 function placeOrder(orderData) {
     return new Promise(async (resolve, reject) => {
         try {
-            const validator = orderValidation(orderData);
-            if (validator.error) {
+            const validator = await orderValidation(orderData);
+            if(validator.error) {
                 reject(validator);
                 return
             }
