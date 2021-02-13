@@ -37,7 +37,7 @@ RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 function addUser(data) {
     return new Promise(async (resolve, reject) => {
         try {
-            const validate = userValidation(data);
+            const validate = userValidation(data, true);
             if(validate.error){
                 reject(validate);
                 return
