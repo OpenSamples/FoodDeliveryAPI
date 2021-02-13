@@ -24,7 +24,7 @@ function createCategories(data){
         } catch (err_msg) {
             reject({
                 error: true,
-                message: '',
+                message: 'Something went wrong while creating category',
                 status: 500,
                 err_msg
             })
@@ -40,7 +40,7 @@ function getAllCategories(){
         } catch (err_msg) {
             reject({
                 error: true,
-                message: '',
+                message: 'Something went wrong while fetching categories',
                 status: 500,
                 err_msg
             })
