@@ -1,6 +1,9 @@
 //Products Model
 const Products = require("../models/Products");
 
+//Validation for product
+const productValidation = require('../validation/productValidation')
+
 /*
 Products routes
 
@@ -31,6 +34,11 @@ Products routes
 function createProduct(data){
     return new Promise((resolve,reject)=>{
         try {
+            const validation = productValidation(data)
+            if(validation.error) {
+                reject(validation)
+                return
+            }
             resolve(Products.create(data));
         } catch (err_msg) {
             reject({
