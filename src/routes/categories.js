@@ -18,7 +18,7 @@ router.post("/",async(req,res)=>{
         const newCategory = await Categories.createCategories(categoriesData);
         res.status(201).json(newCategory);
     } catch (error) {
-        res.status(403).json(error);
+        res.status(error?.status || 403).json(error);
     }
 });
 
@@ -30,7 +30,7 @@ router.get("/",async(req,res)=>{
         const allCategories = await Categories.getAllCategories();
         res.status(201).json(allCategories);
     } catch (error) {
-        res.status(403).json(error);
+        res.status(error?.status || 403).json(error);
     }
 });
 

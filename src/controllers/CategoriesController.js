@@ -21,9 +21,13 @@ function createCategories(data){
     return new Promise((resolve,reject)=>{
         try {
             resolve(Categories.create(data));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: '',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -33,9 +37,13 @@ function getAllCategories(){
     return new Promise((resolve,reject)=>{
         try {
             resolve(Categories.find({}).lean().sort({createdAt:-1}));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: '',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
