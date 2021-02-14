@@ -1,6 +1,8 @@
 const router = require("express").Router();
 //Categories controller
 const Categories = require("../controllers/CategoriesController");
+const {isAuth} = require("./authMiddleware");
+const {isAdmin} = require("./authMiddleware");
 
 /*
 Routes for categories
@@ -12,7 +14,7 @@ Categories
 
 //Create new category fetching req.body and passing it as parameter to createCategories function
 //tested:working
-router.post("/",async(req,res)=>{
+router.post("/",isAuth,async(req,res)=>{
     const categoriesData = req.body;
     try {
         const newCategory = await Categories.createCategories(categoriesData);

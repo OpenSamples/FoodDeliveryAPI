@@ -1,6 +1,8 @@
 const router = require("express").Router();
 //Products controller
 const Products = require("../controllers/ProductsController");
+const {isAuth} = require("./authMiddleware");
+const {isAdmin} = require("./authMiddleware");
 
 /*
 Products routes
@@ -19,7 +21,7 @@ Products routes
 
 //Adding new product getting data from form in req.body and passing it as parameter to createProduct function
 //tested:working
-router.post("/", async (req, res) => {
+router.post("/",isAuth,isAdmin, async (req, res) => {
     const productData = req.body;
     try {
         const newProduct = await Products.createProduct(productData);
@@ -81,10 +83,11 @@ router.get("/show/popular-products", async (req, res) => {
 //We are passing two parameters to addReview function first one is review(req.body from form) second one is
 //productId from url(req.params.productId) this can be changed later
 //tested:working
-router.post("/add-review/:productId",async(req,res)=>{
+router.post("/add-review/:productId",isAuth,async(req,res)=>{
     const review = req.body;
+    const userId = req.user.id;
     try {
-        await Products.addReview(review,req.params.productId);
+        await Products.addReview(review,req.params.productId,userId);
         res.status(201).json({msg:"Review added successfully!"});
     } catch (error) {
         res.status(403).json(error);
@@ -131,11 +134,11 @@ router.get("/comments/:productId",async(req,res)=>{
 //this can be changed later because probably we will have global variable req.user which will contain all data from logged user
 //we are passing those two variables as parametes in removeReview function
 //tested:working
-router.post("/remove-review/:productId",async(req,res)=>{
-    const userId = req.body.userId;
+router.post("/remove-review/:productId",isAuth,async(req,res)=>{
+    const userId = req.user.id;
     try {
         await Products.removeReview(userId,req.params.productId);
-        res.status(200).json({msg:"Review removed."});
+        res.status(200).json({msg:`${req.user.firstName} removed his review from product.`});
     } catch (error) {
         res.status(403).json(error);
     }
