@@ -4,6 +4,8 @@ const Users = require("../models/Users");
 const Products = require("../models/Products");
 //userValidation function from validation folder
 const userValidation = require("../validation/userValidation");
+//Hashing the password
+const bcrypt = require("bcrypt");
 
 /*
 Users
@@ -45,6 +47,7 @@ function addUser(data) {
                 if(userByEmail){
                     resolve({msg:"User with same data already exists in database."});
                 }else{
+                    data.password = await bcrypt.hash(data.password , 10);
                     resolve(Users.create(data));
                 }
             }

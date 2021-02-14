@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Users = require("../controllers/UsersController");
+const passport = require("passport");
 
 /*
 Users
@@ -19,7 +20,38 @@ router.post("/",async(req,res)=>{
     const userData = req.body;
     try {
         const newUser = await Users.addUser(userData);
-        res.status(201).json(newUser);
+        req.flash("success_messages","Successfully registered! you can now login!");
+        res.redirect("/api/users/login");
+        //res.status(201).json(newUser);
+    } catch (error) {
+        res.status(403).json(error);
+    }
+});
+
+router.post("/login",
+    passport.authenticate('local', {
+        successRedirect: '/api/dashboardTest',
+        failureRedirect: '/api/users/login',
+        failureFlash: true,
+        successFlash: true
+    })
+);
+
+router.get('/logout', (req, res)=>{
+    req.logout();
+    // req.flash("success_messages","Logged out!");
+    res.redirect('/api/users/login');
+  });
+
+router.get("/login",async(req,res)=>{
+    try {
+        if(req.flash("success").length>0){
+            res.json(req.flash("success"));
+        }else if(req.flash("error").length>0){
+            res.json(req.flash("error"));
+        }else{
+            res.json({msg:"You are on LOGIN page you can login anytime!"});
+        }
     } catch (error) {
         res.status(403).json(error);
     }
@@ -85,6 +117,5 @@ router.post("/remove-favorite-food/:productId",async(req,res)=>{
         res.status(403).json(error);
     }
 });
-
 
 module.exports = router;
