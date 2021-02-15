@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config();
 
 //We have to include our config files
 const connect = require('./config/db')

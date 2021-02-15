@@ -41,6 +41,18 @@ router.post("/login",
     })
 );
 
+//When user decides to login with google account instead of registering he can do that through this route
+//this route will authenticate user's data provided with googleStrategy(passport) in scope we declare what we want to fetch
+//profile->(first name,last name,photo) email->email
+router.get("/google",passport.authenticate('google',{scope:['profile','email']}));
+
+//In GoogleStrategy provided by passport we declared that a certain callback function with url will be called when user logs in
+//this is that route we authenticate that user if everything went well we redirect him to one route if not to other
+router.get("/google/redirect",passport.authenticate('google',{
+    failureRedirect:'/api/users/login/?fail=true',
+    successRedirect:'/api/dashboardTest',
+}));
+
 //User/Admin can logout after passport populates req with his middlweare we can use req.logout() which is used
 //to destroy session and to logout user after that user is being redirected to login page with query message ?logout=true
 //This could be done also with flash messages (flash-connect) on front-end side
