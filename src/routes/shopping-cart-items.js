@@ -3,6 +3,7 @@ const router = require("express").Router();
 const Shopping_cart_items = require("../controllers/ShoppingCartItemsController");
 //Users controller
 const Users = require("../controllers/UsersController");
+const {isAuth} = require("./authMiddleware");
 
 /*
 ShopingCartItems
@@ -17,12 +18,14 @@ ShopingCartItems
 //IDEA: Logged user can add product to shopping cart we are fetching product id from url and userId from req.body
 //this can be changed later we are passing those variables as parameters to the addToCart function
 //tested:working
-router.post("/:productId", async (req, res) => {
-    const data = req.body;
+//UPDATE 20210215: userId is no longer being provided through req.body now we have authentication(Login) with passport
+//which will populate req.user with logged user object we then provide userId (req.user.id) from route
+router.post("/:productId",isAuth,async (req, res) => {
+    const qty = req.body.qty;
+    const userId = req.user.id;
     try {
-        await Shopping_cart_items.addToCart(data, req.params.productId);
-        const user = await Users.getUserById(data.userId);
-        res.status(201).json({ msg: "Product added to cart that belongs to user: " + user.firstName })
+        await Shopping_cart_items.addToCart(qty, req.params.productId,userId);
+        res.status(201).json({ msg: "Product added to cart that belongs to user: " + req.user.firstName });
     } catch (error) {
         res.status(403).json(error);
     }
@@ -31,10 +34,11 @@ router.post("/:productId", async (req, res) => {
 //Get ShoppingCart by user whose id is provided in url(req.params.userId), its passed as parameter to function
 //getShoppingCartItemsByUserId 
 //tested:working
-router.get("/:userId", async (req, res) => {
+//UPDATE 20210215: We no longer need query reading of userId (/:userId) we now have req.user which has all logged user data
+router.get("/",isAuth, async (req, res) => {
     try {
-        const usersShoppingCart = await Shopping_cart_items.getShoppingCartItemsByUserId(req.params.userId);
-        res.json(usersShoppingCart);
+        const usersShoppingCart = await Shopping_cart_items.getShoppingCartItemsByUserId(req.user.id);
+        res.status(200).json(usersShoppingCart);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -43,10 +47,10 @@ router.get("/:userId", async (req, res) => {
 //Getting total amount of every product in cart (getting total price of Shopping cart) 
 //we are passing req.params.userId as parameter to getTotalPriceAmount function
 //tested:working
-router.get("/sub-total/:userId",async(req,res)=>{
+router.get("/sub-total",isAuth,async(req,res)=>{
     try {
-        const totalAmount = await Shopping_cart_items.getTotalPriceAmount(req.params.userId);
-        res.json(totalAmount);
+        const totalAmount = await Shopping_cart_items.getTotalPriceAmount(req.user.id);
+        res.status(200).json(totalAmount);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -54,10 +58,10 @@ router.get("/sub-total/:userId",async(req,res)=>{
 
 //Getting total number of products in ShoppingCart
 //tested:working
-router.get("/total-items/:userId",async(req,res)=>{
+router.get("/total-items",isAuth,async(req,res)=>{
     try {
-        const totalItems = await Shopping_cart_items.getNumberOfProductsInCart(req.params.userId);
-        res.json(totalItems);
+        const totalItems = await Shopping_cart_items.getNumberOfProductsInCart(req.user.id);
+        res.status(200).json(totalItems);
     } catch (error) {
         res.status(403).json(error);
     }
@@ -66,11 +70,11 @@ router.get("/total-items/:userId",async(req,res)=>{
 //IDEA: Logged user can remove product he added from shopping cart we are getting userId from url and 
 //productId from req.body those two are being passed as parameters to the removeProductFromShoppingCart function
 //tested:working
-router.post("/remove-product/:userId",async(req,res)=>{
+router.post("/remove-product",isAuth,async(req,res)=>{
     const productToBeRemoved = req.body.productId;
     try {
-        await Shopping_cart_items.removeProductFromShoppingCart(req.params.userId,productToBeRemoved);
-        res.json({msg:"Product removed from Shopping Cart"});
+        await Shopping_cart_items.removeProductFromShoppingCart(req.user.id,productToBeRemoved);
+        res.status(200).json({msg:"Product removed from Shopping Cart"});
     } catch (error) {
         res.status(403).json(error);
     }
@@ -78,10 +82,10 @@ router.post("/remove-product/:userId",async(req,res)=>{
 
 //User can clear shopping cart by clearing it he is actually deleting it
 //tested:working
-router.post("/clear-cart/:userId",async(req,res)=>{
+router.post("/clear-cart",isAuth,async(req,res)=>{
     try {
-        await Shopping_cart_items.clearShoppingCart(req.params.userId);
-        res.json({msg:"Shopping cart cleared. It is empty now."});
+        await Shopping_cart_items.clearShoppingCart(req.user.id);
+        res.status(200).json({msg:"Shopping cart cleared. It is empty now."});
     } catch (error) {
         res.status(403).json(error);
     }
