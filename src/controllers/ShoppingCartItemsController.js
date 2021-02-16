@@ -48,9 +48,13 @@ function addToCart(qty, productId, userId) {
                     userId: userId
                 }));
             }
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while adding to cart!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -76,9 +80,13 @@ function getTotalPriceAmount(userId) {
         try {
             const sci = await Shopping_cart_items.findOne({ userId: userId });
             resolve(sci.totalAmount);
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching total price of shopping cart!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -89,9 +97,13 @@ function getNumberOfProductsInCart(userId) {
         try {
             const sci = await Shopping_cart_items.findOne({ userId: userId });
             resolve(sci.products.length);
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching shopping cart products!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -109,9 +121,13 @@ function removeProductFromShoppingCart(userId, productId) {
                     $pull: { products: { productId: productToBeRemoved.id } }
                 })
             );
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while removing products from shopping cart!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
@@ -124,9 +140,13 @@ function clearShoppingCart(userId) {
             resovle(
                 Shopping_cart_items.findOneAndDelete({ userId: userId })
             );
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while clearing shopping cart!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }

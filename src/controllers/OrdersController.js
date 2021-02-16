@@ -57,27 +57,36 @@ function placeOrder(orderData,userId) {
                     orderPlaced: getTodaysDate(),
                     userId: user._id
                 });
+
                 await OrderDetails_controller.createOrderDetails(sci.totalAmount, order._id, sci.products);
+    
                 await Shopping_cart_items_controller.clearShoppingCart(user._id);
-                resolve(order);
+            } catch(e) {
+                reject(e)
+                return
             }
-        } catch (error) {
-            console.log(error);
-            reject(false);
+
+            resolve(order);   
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while placing an order!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
 
 //Getting order details
 function getOrderDetails(orderId) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            resolve(
-                OrderDetails_controller.getOrderDetailsByOrderId(orderId)
-            );
-        } catch (error) {
-            console.log(error);
-            reject(false);
+            const orderDetailsData = await OrderDetails_controller.getOrderDetailsByOrderId(orderId)
+
+            resolve(orderDetailsData);
+        } catch (err_msg) {
+            reject(err_msg)
         }
     });
 }
@@ -89,9 +98,13 @@ function getOrdersByUserId(userId) {
             resolve(
                 Orders.find({ userId: userId }).lean().sort({ createdAt: -1 })
             );
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching an order!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }
