@@ -21,12 +21,13 @@ RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 router.post("/", async (req, res) => {
     const userData = req.body;
     try {
-        await Users.addUser(userData);
-        req.flash("success_messages", "Successfully registered! you can now login!");
-        res.redirect("/api/users/login/?register=true");
-        //res.status(201).json(newUser);
+        const newUser = await Users.addUser(userData);
+        // req.flash("success_messages", "Successfully registered! you can now login!");
+        // res.redirect("/api/users/login/?register=true");
+        res.status(201).json(newUser);
     } catch (error) {
         res.status(403).json(error);
+        
     }
 });
 

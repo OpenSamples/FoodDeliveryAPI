@@ -57,16 +57,10 @@ function placeOrder(orderData,userId) {
                     orderPlaced: getTodaysDate(),
                     userId: user._id
                 });
-
                 await OrderDetails_controller.createOrderDetails(sci.totalAmount, order._id, sci.products);
-    
                 await Shopping_cart_items_controller.clearShoppingCart(user._id);
-            } catch(e) {
-                reject(e)
-                return
+                resolve(order);   
             }
-
-            resolve(order);   
         } catch (err_msg) {
             reject({
                 error: true,

@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const Orders = require("../controllers/OrdersController");
 const {isAuth} = require("./authMiddleware");
-const {isAdmin} = require("./authMiddleware");
 
 /*
 Orders

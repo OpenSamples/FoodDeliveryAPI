@@ -13,47 +13,16 @@ module.exports = (orderData,userId) => {
             if (phone.length < 1 || address.length < 1) {
                 errors.push({ msg: "Must fill all fields." })
             }
-
-            if(!orderData[key]) {
-                errors.push(`${key} should be defined!`)
-            } else if(typeof orderData[key] !== 'string') {
-                errors.push(`${key} must be a string!`)
+            if (!rePhone.test(phone)) {
+                errors.push({ msg: "Invalid phone format." });
             }
-        }
-
-        if(errors.length) {
-            return {
-                error: !!errors.length,
-                message: 'Validation error!',
-                status: 406,
-                err_msg: errors
+            if (!sci) {
+                errors.push({ msg: "You must first fill Shopping Cart if you want to proceed with your order." });
             }
+            resolve(errors);
+        } catch (error) {
+            console.log(error);
+            reject(false);
         }
-
-        const { userId, phone, address } = orderData;
-        const sci = await Shopping_cart_items_model.findOne({ userId: userId });
-        const rePhone = /^\d{9}$/;
-
-        if (phone.length < 1 || address.length < 1) {
-            errors.push("Must fill all fields.")
-        }
-        if (!rePhone.test(phone)) {
-            errors.push("Invalid phone format.");
-        }
-        if (!sci) {
-            errors.push("You must first fill Shopping Cart if you want to proceed with your order.");
-        }
-
-
-        return {
-            error: !!errors.length,
-            message: 'Validation error!',
-            status: 406,
-            err_msg: errors
-        }
-    } catch(e) {
-        return e
-    }
+    });
 }
-
-module.exports = validateOrder
