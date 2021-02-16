@@ -27,7 +27,22 @@ router.post("/:productId",isAuth,async (req, res) => {
         await Shopping_cart_items.addToCart(qty, req.params.productId,userId);
         res.status(201).json({ msg: "Product added to cart that belongs to user: " + req.user.firstName });
     } catch (error) {
-        res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -40,7 +55,7 @@ router.get("/",isAuth, async (req, res) => {
         const usersShoppingCart = await Shopping_cart_items.getShoppingCartItemsByUserId(req.user.id);
         res.status(200).json(usersShoppingCart);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -52,7 +67,7 @@ router.get("/sub-total",isAuth,async(req,res)=>{
         const totalAmount = await Shopping_cart_items.getTotalPriceAmount(req.user.id);
         res.status(200).json(totalAmount);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -63,7 +78,7 @@ router.get("/total-items",isAuth,async(req,res)=>{
         const totalItems = await Shopping_cart_items.getNumberOfProductsInCart(req.user.id);
         res.status(200).json(totalItems);
     } catch (error) {
-        res.status(403).json(error);
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -76,7 +91,22 @@ router.post("/remove-product",isAuth,async(req,res)=>{
         await Shopping_cart_items.removeProductFromShoppingCart(req.user.id,productToBeRemoved);
         res.status(200).json({msg:"Product removed from Shopping Cart"});
     } catch (error) {
-        res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 
@@ -87,7 +117,22 @@ router.post("/clear-cart",isAuth,async(req,res)=>{
         await Shopping_cart_items.clearShoppingCart(req.user.id);
         res.status(200).json({msg:"Shopping cart cleared. It is empty now."});
     } catch (error) {
-        res.status(403).json(error);
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
     }
 });
 
