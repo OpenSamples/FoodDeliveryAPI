@@ -2,7 +2,7 @@ const router = require("express").Router();
 const Users = require("../controllers/UsersController");
 const passport = require("passport");
 const { isAuth } = require("./authMiddleware");
-const { isAdmin } = require("./authMiddleware");
+const { isGoogle } = require("./authMiddleware");
 
 /*
 Users
@@ -43,8 +43,9 @@ router.post("/login",
 
 //When user decides to login with google account instead of registering he can do that through this route
 //this route will authenticate user's data provided with googleStrategy(passport) in scope we declare what we want to fetch
-//profile->(first name,last name,photo) email->email
-router.get("/google",passport.authenticate('google',{scope:['profile','email']}));
+//profile->(first name,last name,photo) email->email we use prompt: 'select_account' to disable autologin (if we some users have multiple accounts
+//on one pc)
+router.get("/google",isGoogle,passport.authenticate('google',{scope:['profile','email'],prompt: 'select_account'}));
 
 //In GoogleStrategy provided by passport we declared that a certain callback function with url will be called when user logs in
 //this is that route we authenticate that user if everything went well we redirect him to one route if not to other
@@ -122,7 +123,7 @@ router.get("/favorite-food/:userId", async (req, res) => {
 //something like req.user or logged user data). We pass those two as parameters to addFavoriteFood function 
 //tested:working
 router.post("/add-favorite-food/:productId",isAuth,async (req, res) => {
-    const userId = req.body.userId;
+    const userId = req.user.id;
     try {
         await Users.addFavoriteFood(userId, req.params.productId);
         res.status(201).json({ msg: "Added new favorite food" });
@@ -135,7 +136,7 @@ router.post("/add-favorite-food/:productId",isAuth,async (req, res) => {
 //we remove that product from favoriteFood array
 //tested:working
 router.post("/remove-favorite-food/:productId",isAuth,async (req, res) => {
-    const userId = req.body.userId;
+    const userId = req.user.id;
     try {
         await Users.removeFavoriteFood(userId, req.params.productId);
         res.status(201).json({ msg: "Removed favorite food" });
