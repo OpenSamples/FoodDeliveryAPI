@@ -127,11 +127,16 @@ function getPopularProducts(){
     "comment": "Rice was delicious and poultry was nice too."
 }
 */
-function addReview(reviewData,productId){
+function addReview(reviewData,productId,userId){
     return new Promise(async(resolve,reject)=>{
         try {
+            const reviewObject = {
+                userId:userId,
+                rating:reviewData.rating,
+                comment:reviewData.comment
+            }
             const reviewProduct = await Products.findOneAndUpdate({_id:productId},{
-                $push:{reviews:reviewData}
+                $push:{reviews:reviewObject}
             });
             resolve(reviewProduct);
          } catch (err_msg) {

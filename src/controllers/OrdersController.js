@@ -37,28 +37,27 @@ sci = shopping cart items
 //6.We create new order with data provided by user,sci,orderData
 //7.We create OrderDetails with parameters sci.totalAmount, order._id, sci.products
 //8. We clear shoppingCart that belongs to user who placed order
-function placeOrder(orderData) {
+
+//UPDATE 20210215: We no longer fetch userId from orderData (req.body) we now have req.user (provided by passport authentication)
+//which we pass to placeOrder as parameter called userId 
+function placeOrder(orderData,userId) {
     return new Promise(async (resolve, reject) => {
         try {
-            const validator = await orderValidation(orderData);
-            if(validator.error) {
-                reject(validator);
-                return
-            }
+            const validator = await orderValidation(orderData,userId);
+            if (validator.length > 0) {
+                resolve(validator);
+            } else {
+                const user = await Users.findOne({ _id:userId });
+                const sci = await Shopping_cart_items_model.findOne({ userId: userId });
+                const order = await Orders.create({
+                    fullName: user.fullName,
+                    address: orderData.address,
+                    phone: orderData.phone,
+                    orderTotal: sci.totalAmount,
+                    orderPlaced: getTodaysDate(),
+                    userId: user._id
+                });
 
-            const user = await Users.findOne({ _id: orderData.userId });
-            const sci = await Shopping_cart_items_model.findOne({ userId: user.id });
-
-            const order = await Orders.create({
-                fullName: user.fullName,
-                address: orderData.address,
-                phone: orderData.phone,
-                orderTotal: sci.totalAmount,
-                orderPlaced: getTodaysDate(),
-                userId: user._id
-            });
-
-            try {
                 await OrderDetails_controller.createOrderDetails(sci.totalAmount, order._id, sci.products);
     
                 await Shopping_cart_items_controller.clearShoppingCart(user._id);

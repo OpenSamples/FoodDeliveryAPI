@@ -15,13 +15,20 @@ const usersSchema = new Schema({
         unique: true,
         required: true,
     },
+    email_is_verified:{
+        type:Boolean,
+        default:false
+    },
     password: {
         type: String,
-        required: true
+        default:null
+    },
+    googleId:{
+        type:String,
+        default:null
     },
     role: {
         type: Number,
-        required: true,
         default: 0
     },
     logoUrl: {

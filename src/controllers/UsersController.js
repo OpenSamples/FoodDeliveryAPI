@@ -4,6 +4,8 @@ const Users = require("../models/Users");
 const Products = require("../models/Products");
 //userValidation function from validation folder
 const userValidation = require("../validation/userValidation");
+//Hashing the password
+const bcrypt = require("bcrypt");
 
 /*
 Users
@@ -37,10 +39,17 @@ RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 function addUser(data) {
     return new Promise(async (resolve, reject) => {
         try {
-            const validate = userValidation(data, true);
-            if(validate.error){
-                reject(validate);
-                return
+            const validate = userValidation(data);
+            if(validate.length>0){
+                resolve(validate);
+            }else{
+                const userByEmail = await Users.findOne({email:data.email});
+                if(userByEmail){
+                    resolve({msg:"User with same data already exists in database."});
+                }else{
+                    data.password = await bcrypt.hash(data.password , 10);
+                    resolve(Users.create(data));
+                }
             }
 
             const userByEmail = await Users.findOne({email:data.email});

@@ -1,17 +1,17 @@
 //Shopping cart items model
 const Shopping_cart_items_model = require("../models/ShoppingCartItems");
 
-// Function to validate order
-async function validateOrder(orderData) {
-    try {
-        let requiredKeys = ['userId, phone, address']
-        const errors = [];
-
-        for(let i = 0; i < requiredKeys.length; i++) {
-            let key = requiredKeys[i]
-
-            if(key in orderData && !orderData[key]) {
-                errors.push(`Invalid ${key}`)
+//Same as userValidation,but here we are returning promise because we need to check if Shopping_cart_items with provided
+//userId exists if not we are pushing new error to errors and resolving it further
+module.exports = (orderData,userId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const {phone, address } = orderData;
+            const sci = await Shopping_cart_items_model.findOne({ userId: userId });
+            const errors = [];
+            const rePhone = /^\d{9}$/;
+            if (phone.length < 1 || address.length < 1) {
+                errors.push({ msg: "Must fill all fields." })
             }
 
             if(!orderData[key]) {
