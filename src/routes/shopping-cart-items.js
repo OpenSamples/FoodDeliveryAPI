@@ -19,6 +19,33 @@ ShopingCartItems
 - ClearShoppingCart - DEL: api/ShoppingCartItems/3
 */
 
+
+//User can clear shopping cart by clearing it he is actually deleting it
+//tested:working
+router.post("/clear-cart", async(req,res)=>{
+    try {
+        await Shopping_cart_items.clearShoppingCart(req.user.id);
+        res.status(200).json({msg:"Shopping cart cleared. It is empty now."});
+    } catch (error) {
+        if (error.name === "ValidationError") {
+            let errors = {};
+        
+            Object.keys(error.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+        
+            return res.status(406).send({
+                error: true,
+                message: 'Validation error',
+                status: 406,
+                err_msg: errors
+
+            });
+        }
+        res.status( error.status || 403).json(error);
+    }
+});
+
 //IDEA: Logged user can add product to shopping cart we are fetching product id from url and userId from req.body
 //this can be changed later we are passing those variables as parameters to the addToCart function
 //tested:working
@@ -114,30 +141,5 @@ router.post("/remove-product", async(req,res)=>{
     }
 });
 
-//User can clear shopping cart by clearing it he is actually deleting it
-//tested:working
-router.post("/clear-cart", async(req,res)=>{
-    try {
-        await Shopping_cart_items.clearShoppingCart(req.user.id);
-        res.status(200).json({msg:"Shopping cart cleared. It is empty now."});
-    } catch (error) {
-        if (error.name === "ValidationError") {
-            let errors = {};
-        
-            Object.keys(error.errors).forEach((key) => {
-                errors[key] = error.errors[key].message;
-            });
-        
-            return res.status(406).send({
-                error: true,
-                message: 'Validation error',
-                status: 406,
-                err_msg: errors
-
-            });
-        }
-        res.status( error.status || 403).json(error);
-    }
-});
 
 module.exports = router;
