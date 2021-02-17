@@ -39,22 +39,25 @@ RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 function addUser(data) {
     return new Promise(async (resolve, reject) => {
         try {
-            const validate = userValidation(data);
-            if (validate.length > 0) {
-                resolve(validate);
-            } else {
-                const userByEmail = await Users.findOne({ email: data.email });
-                if (userByEmail) {
-                    reject({
-                        error: true,
-                        message: 'User with same data already exists in database.',
-                        status: 406
-                    });
-                } else {
-                    data.password = await bcrypt.hash(data.password, 10);
-                    resolve(Users.create(data));
-                }
+            !data.role ? data.role = 0 : null;
+            const validate = userValidation(data, true);
+            if (validate.error) {
+                reject(validate);
+                return;
             }
+
+            const userByEmail = await Users.findOne({ email: data.email });
+            if (userByEmail) {
+                reject({
+                    error: true,
+                    message: 'User with same data already exists in database.',
+                    status: 406
+                });
+            } else {
+                data.password = await bcrypt.hash(data.password, 10);
+                resolve(Users.create(data));
+            }
+            
         } catch (err_msg) {
             reject({
                 error: true,

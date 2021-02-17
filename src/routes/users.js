@@ -20,6 +20,7 @@ RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 //tested:working
 router.post("/", async (req, res) => {
     const userData = req.body;
+
     try {
         const newUser = await Users.addUser(userData);
         // req.flash("success_messages", "Successfully registered! you can now login!");
@@ -27,7 +28,6 @@ router.post("/", async (req, res) => {
         res.status(201).json(newUser);
     } catch (error) {
         res.status(403).json(error);
-        
     }
 });
 
