@@ -3,6 +3,30 @@ const router = require("express").Router();
 const Products = require("../controllers/ProductsController");
 const {isAuth} = require("../services/authMiddleware");
 const {isAdmin} = require("../services/authMiddleware");
+const multer = require('multer');
+
+let storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, './public/images/products')
+    },
+    filename: function (req, file, callback) {
+        callback(null, Date.now() + '-' + file.originalname)
+    }
+})
+
+// multer options
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 3145728
+    },
+    fileFilter(req, file, cb) {
+        if (file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+            cb(new Error('Please upload product image.'))
+        }
+        cb (undefined, true)
+    }
+})
 
 /*
 Products routes
@@ -18,6 +42,25 @@ Products routes
 - GetAllProductsComments - GET : api/Products/Comments/5 (Product ID);
 - RemoveReview - POST : api/Products/remove-review/:5 (Product ID);
 */
+
+// Product image upload route
+router.post('/upload', upload.single('upload'), async (req, res) => {
+    try {
+        const upload = req.file;
+
+        res.send({
+            status: true,
+            message: 'Product image uploaded.',
+            data: {
+                name: upload.originalname,
+                mimetype: upload.mimetype,
+                size: upload.size
+            }
+        })
+    } catch (err) {
+        res.status(500).send(err)
+    }
+})
 
 //Adding new product getting data from form in req.body and passing it as parameter to createProduct function
 //tested:working

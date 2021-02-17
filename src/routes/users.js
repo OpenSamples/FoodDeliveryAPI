@@ -7,7 +7,7 @@ const multer = require('multer');
 
 let storage = multer.diskStorage({
     destination: function (req, file, callback) {
-        callback(null, './public/images');
+        callback(null, './public/images/users')
     },
     filename: function (req, file, callback) {
         callback(null, Date.now() + '-' + file.originalname)
@@ -22,7 +22,7 @@ const upload = multer({
     },
     fileFilter(req, file, cb) {
         if (file.originalname.match(/\.(png|jpg|jpeg)$/)) {
-            cb(new Error('Please upload an image.'))
+            cb(new Error('Please upload user image.'))
         }
         cb (undefined, true)
     }
@@ -47,7 +47,7 @@ router.post('/upload', upload.single('upload'), async (req, res) => {
 
         res.send({
             status: true,
-            message: 'User image is uploaded.',
+            message: 'User image uploaded.',
             data: {
                 name: upload.originalname,
                 mimetype: upload.mimetype,
