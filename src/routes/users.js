@@ -3,9 +3,34 @@ const Users = require("../controllers/UsersController");
 const passport = require("passport");
 const { isAuth } = require("../services/authMiddleware");
 const { isGoogle } = require("../services/authMiddleware");
+const multer = require('multer');
+
+let storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, './public/images');
+    },
+    filename: function (req, file, callback) {
+        callback(null, Date.now() + '-' + file.originalname)
+    }
+})
+
+// multer options
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 3145728
+    },
+    fileFilter(req, file, cb) {
+        if (file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+            cb(new Error('Please upload an image.'))
+        }
+        cb (undefined, true)
+    }
+})
 
 /*
 Users
+UploadUserImage - POST : api/Users/upload
 AddNewUser - POST : api/Users
 GetAllUsers - GET : api/Users
 GetUserById - GET : api/Users/4 (User Id)
@@ -13,6 +38,26 @@ GetFavoriteFoodByUser - GET : api/Users/FavoriteFood/4 (User ID);
 AddFavoriteFood - POST : api/Users/AddFavoriteFood/5 (Product ID);
 RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 */
+
+
+// User image upload route
+router.post('/upload', upload.single('upload'), async (req, res) => {
+    try {
+        const upload = req.file;
+
+        res.send({
+            status: true,
+            message: 'User image is uploaded.',
+            data: {
+                name: upload.originalname,
+                mimetype: upload.mimetype,
+                size: upload.size
+            }
+        })
+    } catch (err) {
+        res.status(500).send(err)
+    }
+})
 
 
 //JUST FOR TESTING...this can be later implemented as Users.registerNewUser
