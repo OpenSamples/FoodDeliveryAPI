@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const Orders = require("../controllers/OrdersController");
-const {isAuth} = require("./authMiddleware");
+const {isAuth} = require("../services/authMiddleware");
+
+router.use(isAuth);
 
 /*
 Orders
@@ -12,7 +14,7 @@ Orders
 //IDEA: After logged user decides he/she is ready to continue with his shoppingCart and proceed to order
 //new Order will be created in placeOrder function we pass orderData (from req.body)
 //tested:working
-router.post("/",isAuth, async (req, res) => {
+router.post("/", async (req, res) => {
     const orderData = req.body;
     const userId = req.user.id;
     try {
@@ -40,7 +42,7 @@ router.post("/",isAuth, async (req, res) => {
 
 //Getting order details 
 //tested:working
-router.get("/order-details/:orderId",isAuth, async (req, res) => {
+router.get("/order-details/:orderId", async (req, res) => {
     try {
      const orderDetailsByOrderId = await Orders.getOrderDetails(req.params.orderId);
      res.status(200).json(orderDetailsByOrderId);
@@ -52,7 +54,7 @@ router.get("/order-details/:orderId",isAuth, async (req, res) => {
 //Getting orders by user
 //tested:working
 //UPDATE 20210215: No longer using req.params.userId now we have req.user 
-router.get("/orders-by-user",isAuth, async (req, res) => {
+router.get("/orders-by-user", async (req, res) => {
     const userId = req.user.id;
     try {
        const ordersByUser = await Orders.getOrdersByUserId(userId);

@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const Users = require("../controllers/UsersController");
 const passport = require("passport");
-const { isAuth } = require("./authMiddleware");
-const { isGoogle } = require("./authMiddleware");
+const { isAuth } = require("../services/authMiddleware");
+const { isGoogle } = require("../services/authMiddleware");
 
 /*
 Users
@@ -13,6 +13,7 @@ GetFavoriteFoodByUser - GET : api/Users/FavoriteFood/4 (User ID);
 AddFavoriteFood - POST : api/Users/AddFavoriteFood/5 (Product ID);
 RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 */
+
 
 //JUST FOR TESTING...this can be later implemented as Users.registerNewUser
 //we are passing data through form and fetching it here with req.body as userData
@@ -46,11 +47,11 @@ router.post("/login",
 //this route will authenticate user's data provided with googleStrategy(passport) in scope we declare what we want to fetch
 //profile->(first name,last name,photo) email->email we use prompt: 'select_account' to disable autologin (if we some users have multiple accounts
 //on one pc)
-router.get("/google",isGoogle,passport.authenticate('google',{scope:['profile','email'],prompt: 'select_account'}));
+router.get("/google", isGoogle, passport.authenticate('google',{scope:['profile','email'],prompt: 'select_account'}));
 
 //In GoogleStrategy provided by passport we declared that a certain callback function with url will be called when user logs in
 //this is that route we authenticate that user if everything went well we redirect him to one route if not to other
-router.get("/google/redirect",passport.authenticate('google',{
+router.get("/google/redirect", passport.authenticate('google',{
     failureRedirect:'/api/users/login/?fail=true',
     successRedirect:'/api/dashboardTest',
 }));
@@ -81,21 +82,6 @@ router.get("/login", async (req, res) => {
             }
         }
     } catch (error) {
-        if (error.name === "ValidationError") {
-            let errors = {};
-        
-            Object.keys(error.errors).forEach((key) => {
-                errors[key] = error.errors[key].message;
-            });
-        
-            return res.status(406).send({
-                error: true,
-                message: 'Validation error',
-                status: 406,
-                err_msg: errors
-
-            });
-        }
         res.status( error.status || 403).json(error);
     }
 });
@@ -138,7 +124,7 @@ router.get("/favorite-food/:userId", async (req, res) => {
 //by getting productId from url and we are getting users id with req.body.userId (this can later be changed as we are going to have
 //something like req.user or logged user data). We pass those two as parameters to addFavoriteFood function 
 //tested:working
-router.post("/add-favorite-food/:productId",isAuth,async (req, res) => {
+router.post("/add-favorite-food/:productId", isAuth, async (req, res) => {
     const userId = req.user.id;
     try {
         await Users.addFavoriteFood(userId, req.params.productId);
@@ -166,7 +152,7 @@ router.post("/add-favorite-food/:productId",isAuth,async (req, res) => {
 //IDEA: Logged user can remove some product from his favorite food we are doing the same as above just now 
 //we remove that product from favoriteFood array
 //tested:working
-router.post("/remove-favorite-food/:productId",isAuth,async (req, res) => {
+router.post("/remove-favorite-food/:productId", isAuth, async (req, res) => {
     const userId = req.user.id;
     try {
         await Users.removeFavoriteFood(userId, req.params.productId);

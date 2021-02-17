@@ -3,7 +3,11 @@ const router = require("express").Router();
 const Shopping_cart_items = require("../controllers/ShoppingCartItemsController");
 //Users controller
 const Users = require("../controllers/UsersController");
-const {isAuth} = require("./authMiddleware");
+const {isAuth} = require("../services/authMiddleware");
+
+// Using authentication
+router.use(isAuth);
+
 
 /*
 ShopingCartItems
@@ -20,7 +24,7 @@ ShopingCartItems
 //tested:working
 //UPDATE 20210215: userId is no longer being provided through req.body now we have authentication(Login) with passport
 //which will populate req.user with logged user object we then provide userId (req.user.id) from route
-router.post("/:productId",isAuth,async (req, res) => {
+router.post("/:productId", async (req, res) => {
     const qty = req.body.qty;
     const userId = req.user.id;
     try {
@@ -50,7 +54,7 @@ router.post("/:productId",isAuth,async (req, res) => {
 //getShoppingCartItemsByUserId 
 //tested:working
 //UPDATE 20210215: We no longer need query reading of userId (/:userId) we now have req.user which has all logged user data
-router.get("/",isAuth, async (req, res) => {
+router.get("/",  async (req, res) => {
     try {
         const usersShoppingCart = await Shopping_cart_items.getShoppingCartItemsByUserId(req.user.id);
         res.status(200).json(usersShoppingCart);
@@ -62,7 +66,7 @@ router.get("/",isAuth, async (req, res) => {
 //Getting total amount of every product in cart (getting total price of Shopping cart) 
 //we are passing req.params.userId as parameter to getTotalPriceAmount function
 //tested:working
-router.get("/sub-total",isAuth,async(req,res)=>{
+router.get("/sub-total", async(req,res)=>{
     try {
         const totalAmount = await Shopping_cart_items.getTotalPriceAmount(req.user.id);
         res.status(200).json(totalAmount);
@@ -73,7 +77,7 @@ router.get("/sub-total",isAuth,async(req,res)=>{
 
 //Getting total number of products in ShoppingCart
 //tested:working
-router.get("/total-items",isAuth,async(req,res)=>{
+router.get("/total-items", async(req,res)=>{
     try {
         const totalItems = await Shopping_cart_items.getNumberOfProductsInCart(req.user.id);
         res.status(200).json(totalItems);
@@ -85,7 +89,7 @@ router.get("/total-items",isAuth,async(req,res)=>{
 //IDEA: Logged user can remove product he added from shopping cart we are getting userId from url and 
 //productId from req.body those two are being passed as parameters to the removeProductFromShoppingCart function
 //tested:working
-router.post("/remove-product",isAuth,async(req,res)=>{
+router.post("/remove-product", async(req,res)=>{
     const productToBeRemoved = req.body.productId;
     try {
         await Shopping_cart_items.removeProductFromShoppingCart(req.user.id,productToBeRemoved);
@@ -112,7 +116,7 @@ router.post("/remove-product",isAuth,async(req,res)=>{
 
 //User can clear shopping cart by clearing it he is actually deleting it
 //tested:working
-router.post("/clear-cart",isAuth,async(req,res)=>{
+router.post("/clear-cart", async(req,res)=>{
     try {
         await Shopping_cart_items.clearShoppingCart(req.user.id);
         res.status(200).json({msg:"Shopping cart cleared. It is empty now."});
