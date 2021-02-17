@@ -65,9 +65,13 @@ function getShoppingCartItemsByUserId(userId) {
     return new Promise((resolve, reject) => {
         try {
             resolve(Shopping_cart_items.findOne({ userId: userId }));
-        } catch (error) {
-            console.log(error);
-            reject(false);
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while fetching shopping cart items!',
+                status: 500,
+                err_msg
+            })
         }
     });
 }

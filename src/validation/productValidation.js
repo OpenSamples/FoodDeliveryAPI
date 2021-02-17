@@ -18,18 +18,12 @@ function validateProduct(data) {
             } else {
                 errors.push(`${key} should be defined!`)
             }
-        } else if(typeof data[key] !== 'string') {
-            if(key === 'price') {
-                if(typeof data[key] !== 'number') {
-                    errors.push(`price must be a number!`)
-                }
-            } else {
-                errors.push(`${key} must be a string!`)
-            }
-        }
+        } 
 
         if(key === 'price' && typeof data[key] !== 'number') {
             errors.push('price must be a number!')
+        } else if(typeof data[key] !== 'string' && key !== 'price') {
+            errors.push(`${key} must be a string!`)
         }
     }
 

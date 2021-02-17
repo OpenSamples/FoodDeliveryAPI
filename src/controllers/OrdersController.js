@@ -43,30 +43,26 @@ sci = shopping cart items
 function placeOrder(orderData,userId) {
     return new Promise(async (resolve, reject) => {
         try {
-            const validator = await orderValidation(orderData,userId);
-            if (validator.length > 0) {
-                resolve(validator);
-            } else {
-                const user = await Users.findOne({ _id:userId });
-                const sci = await Shopping_cart_items_model.findOne({ userId: userId });
-                const order = await Orders.create({
-                    fullName: user.fullName,
-                    address: orderData.address,
-                    phone: orderData.phone,
-                    orderTotal: sci.totalAmount,
-                    orderPlaced: getTodaysDate(),
-                    userId: user._id
-                });
-
-                await OrderDetails_controller.createOrderDetails(sci.totalAmount, order._id, sci.products);
-    
-                await Shopping_cart_items_controller.clearShoppingCart(user._id);
-            } catch(e) {
-                reject(e)
-                return
+            const validator = await orderValidation(orderData, userId);
+            if (validator.error) {
+                reject(validator)
+                return;
             }
 
+            const user = await Users.findOne({ _id:userId });
+            const sci = await Shopping_cart_items_model.findOne({ userId: userId });
+            const order = await Orders.create({
+                fullName: user.fullName,
+                address: orderData.address,
+                phone: orderData.phone,
+                orderTotal: sci.totalAmount,
+                orderPlaced: getTodaysDate(),
+                userId: user._id
+            });
+            await OrderDetails_controller.createOrderDetails(sci.totalAmount, order._id, sci.products);
+            await Shopping_cart_items_controller.clearShoppingCart(user._id);
             resolve(order);   
+        
         } catch (err_msg) {
             reject({
                 error: true,

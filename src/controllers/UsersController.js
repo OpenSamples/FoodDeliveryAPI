@@ -39,30 +39,24 @@ RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 function addUser(data) {
     return new Promise(async (resolve, reject) => {
         try {
-            const validate = userValidation(data);
-            if(validate.length>0){
-                resolve(validate);
-            }else{
-                const userByEmail = await Users.findOne({email:data.email});
-                if(userByEmail){
-                    resolve({msg:"User with same data already exists in database."});
-                }else{
-                    data.password = await bcrypt.hash(data.password , 10);
-                    resolve(Users.create(data));
-                }
+            !data.role ? data.role = 0 : null;
+            const validate = userValidation(data, true);
+            if (validate.error) {
+                reject(validate);
+                return;
             }
 
-            const userByEmail = await Users.findOne({email:data.email});
-            if(userByEmail){
+            const userByEmail = await Users.findOne({ email: data.email });
+            if (userByEmail) {
                 reject({
                     error: true,
                     message: 'User with same data already exists in database.',
                     status: 406
                 });
-                return
+            } else {
+                data.password = await bcrypt.hash(data.password, 10);
+                resolve(Users.create(data));
             }
-
-            resolve(Users.create(data)); 
             
         } catch (err_msg) {
             reject({
@@ -76,10 +70,10 @@ function addUser(data) {
 }
 
 //Getting user by Id
-function getUserById(userId){
+function getUserById(userId) {
     return new Promise(async (resolve, reject) => {
         try {
-           resolve(Users.findOne({_id:userId}));
+            resolve(Users.findOne({ _id: userId }));
         } catch (err_msg) {
             reject({
                 error: true,
@@ -111,10 +105,10 @@ function getAllUsers() {
 //1.We find user by his id 
 //2.We find all those products(favorite food) whose id is inside user.favoriteFood array of ids
 function getFavoriteFoodByUser(userId) {
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            const user = await Users.findOne({_id:userId});
-            const favoriteFood = await Products.find({_id:{$in:user.favoriteFood}});
+            const user = await Users.findOne({ _id: userId });
+            const favoriteFood = await Products.find({ _id: { $in: user.favoriteFood } });
             resolve(favoriteFood);
         } catch (err_msg) {
             reject({
@@ -129,11 +123,11 @@ function getFavoriteFoodByUser(userId) {
 
 //User can add product(favorite food)
 //We just push productId in favoriteFood row
-function addFavoriteFood(userId,productId) {
-    return new Promise(async(resolve, reject) => {
+function addFavoriteFood(userId, productId) {
+    return new Promise(async (resolve, reject) => {
         try {
-            const user = await Users.findOneAndUpdate({_id:userId},{
-                $push:{favoriteFood:productId}
+            const user = await Users.findOneAndUpdate({ _id: userId }, {
+                $push: { favoriteFood: productId }
             });
             resolve(user);
         } catch (err_msg) {
@@ -149,11 +143,11 @@ function addFavoriteFood(userId,productId) {
 
 //User can remove favorite food we are doing this by pulling ($pull) 
 //productId from favoriteFood array
-function removeFavoriteFood(userId,productId) {
-    return new Promise(async(resolve, reject) => {
+function removeFavoriteFood(userId, productId) {
+    return new Promise(async (resolve, reject) => {
         try {
-            const user = await Users.findOneAndUpdate({_id:userId},{
-                $pull:{favoriteFood:productId}
+            const user = await Users.findOneAndUpdate({ _id: userId }, {
+                $pull: { favoriteFood: productId }
             });
             resolve(user);
         } catch (err_msg) {

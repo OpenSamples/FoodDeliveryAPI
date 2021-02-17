@@ -37,7 +37,7 @@ function createProduct(data){
             const validation = productValidation(data)
             if(validation.error) {
                 reject(validation)
-                return
+                return;
             }
             resolve(Products.create(data));
         } catch (err_msg) {

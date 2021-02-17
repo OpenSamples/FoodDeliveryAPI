@@ -13,10 +13,12 @@ const validateUser = (data, create) => {
         let key = requiredKeys[i]
 
         if(key in data && !data[key]) {
-            errors.push(`Invalid ${key}`)
+            if(!(key === 'role' && data[key] === 0)) {
+                errors.push(`Invalid ${key}`)
+            }
         }
 
-        if(!data[key]) {
+        if(!data[key] && create) {
             if(key === 'role') {
                 if(data[key] !== 0) {
                     errors.push(`role should be defined!`)
@@ -24,18 +26,12 @@ const validateUser = (data, create) => {
             } else {
                 errors.push(`${key} should be defined!`)
             }
-        } else if(typeof data[key] !== 'string') {
-            if(key === 'role') {
-                if(typeof data[key] !== 'number') {
-                    errors.push(`role must be a number!`)
-                }
-            } else {
-                errors.push(`${key} must be a string!`)
-            }
-        }
+        } 
 
         if(key === 'role' && typeof data[key] !== 'number') {
             errors.push('role must be a number!')
+        } else if(typeof data[key] !== 'string' && key !== 'role') {
+            errors.push(`${key} must be a string!`)
         }
     }
 
@@ -51,13 +47,13 @@ const validateUser = (data, create) => {
 
     if(data.firstName) {
         if(data.firstName.length < 2) errors.push('First name is too short')
-    } else if(create || data.firstName === '') {
+    } else if(create || data.firstName.trim() === '') {
         errors.push(`First name should be defined!`)
     }
 
     if(data.lastName) {
         if(data.lastName.length < 2) errors.push('Last name is too short')
-    } else if(create || data.lastName === '') {
+    } else if(create || data.lastName.trim() === '') {
         errors.push(`Last name should be defined!`)
     }
 
@@ -65,7 +61,7 @@ const validateUser = (data, create) => {
         if(!validateEmail(data.email)) {
             errors.push('Email is invalid')
         }
-    } else if(create || data.email === '') {
+    } else if(create || data.email.trim() === '') {
         errors.push(`Email should be defined!`)
     }
 
@@ -78,16 +74,17 @@ const validateUser = (data, create) => {
             errors.push('Password must contain at least one lowercase letter, one uppercase letter and one number!')
         }
         
-    } else if(create || data.password === '') {
+    } else if(create || data.password.trim() === '') {
         errors.push(`Password should be defined!`)
     }
 
     if(data.role || data.role === 0) {
-        if(!(data.role === 0 || data.role === 1)) errors.push(`Role must be 0 or 1!`)
+        if(![0, 1].includes(data.role)) {
+            errors.push(`Role must be 0 or 1!`)
+        }
     } else if(create) {
         errors.push(`Role should be defined!`)
     }
-
 
     return {
         error: !!errors.length,
