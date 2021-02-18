@@ -200,6 +200,30 @@ function removeFavoriteFood(userId, productId) {
     });
 }
 
+function verifyEmail(userId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let isUpdated = await Users.findOneAndUpdate({_id: userId}, {email_is_verified: true})
+            if(!isUpdated) {
+                reject({
+                    error: true,
+                    status: 404,
+                    message: 'User does not exist!'
+                })
+                return;
+            }
+            resolve(isUpdated)
+        } catch (e) {
+            reject({
+                error: true,
+                status: 500,
+                message: 'Something went wrong while verifying email...',
+                err_msg: e
+            })
+        }
+    })
+}
+
 function validateEmail(email) {
     const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email)
@@ -213,5 +237,6 @@ module.exports = {
     getFavoriteFoodByUser,
     addFavoriteFood,
     removeFavoriteFood,
-    updateUser
+    updateUser,
+    verifyEmail
 };
