@@ -4,6 +4,8 @@ const passport = require("passport");
 const { isAuth } = require("../services/authMiddleware");
 const { isGoogle } = require("../services/authMiddleware");
 const multer = require('multer');
+const jwt = require('jsonwebtoken');
+const { verifyEmail } = require('../services/emailService');
 
 let storage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -68,6 +70,15 @@ router.post("/", async (req, res) => {
 
     try {
         const newUser = await Users.addUser(userData);
+
+        let token = jwt.sign({
+            id: newUser._id,
+            name: newUser.firstName
+        }, process.env.VERIFICATION_SECRET, { expiresIn: "2h" })
+        let verificationLink = `${process.env.WEBSITE_LINK || 'http://localhost:3000'}/api/users/verifyEmail/${token}`
+
+        verifyEmail(newUser.email, verificationLink, newUser.firstName)
+
         // req.flash("success_messages", "Successfully registered! you can now login!");
         // res.redirect("/api/users/login/?register=true");
         res.status(201).json(newUser);
@@ -75,6 +86,28 @@ router.post("/", async (req, res) => {
         res.status(403).json(error);
     }
 });
+
+
+router.get('/verifyEmail/:token', async (req, res) => {
+    let token = req.params.token
+
+    try {
+        let user = jwt.verify(token, process.env.VERIFICATION_SECRET)
+
+        await Users.verifyEmail(user.id)
+
+        res.status(200).json({message: `Congratulations ${user.name}, successfully verified email`})
+    } catch(e) {
+        if(e.message === 'Something went wrong while verifying email...' || e.message === 'User does not exist!') {
+            return res.status(e.status || 404).json(e)
+        }
+        return res.status(401).json({
+            error: true,
+            status: 401,
+            message: 'Invalid token!'
+        })
+    }
+})
 
 //User/Admin can login we use passports middleware function called authenticate in which we choose local(local strategy passport+email)
 //if everythig went well in passport(config/passport.js) we will activate successRedirect if not we will redirect to failureRedirect

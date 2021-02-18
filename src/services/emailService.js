@@ -38,6 +38,24 @@ const createTransporter = async () => {
     return transporter;
 };
 
+const verifyEmail = async(email, link, name) => {
+  let emailTransporter = await createTransporter();
+
+  await emailTransporter.sendMail({
+    subject: 'Verify Email Address for Dostava Hrane',
+    from: 'dostavahrane06@gmail.com',
+    to: email,
+    html: `<div>
+              <h2>Hello ${name},</h2>
+              <p>
+                  Thanks for registering for an account on Dostava Hrane! Before we get started, 
+                  we just need to confirm that this is you. Click below to verify your email address:
+              </p>
+              <a href="${link}">VERIFY EMAIL</a>
+          </div>`
+  });
+}
+
 const sendEmail = async (emailOptions) => {
     let emailTransporter = await createTransporter();
     await emailTransporter.sendMail(emailOptions);
@@ -52,4 +70,7 @@ const sendEmail = async (emailOptions) => {
 //     from: process.env.EMAIL
 // });
 
-module.exports = sendEmail
+module.exports = {
+  sendEmail,
+  verifyEmail
+}
