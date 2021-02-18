@@ -57,11 +57,50 @@ function addUser(data) {
                 data.password = await bcrypt.hash(data.password, 10);
                 resolve(Users.create(data));
             }
-            
+
         } catch (err_msg) {
             reject({
                 error: true,
                 message: 'Something went wrong while adding new user!',
+                status: 500,
+                err_msg
+            })
+        }
+    });
+}
+
+//Update user
+function updateUser(userId, newData) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (newData.email !== undefined) {
+                if (validateEmail(newData.email)) {
+                    const user = await Users.findOne({ email: newData.email });
+                    if (user) {
+                        if (user.email === newData.email) {
+                            resolve(
+                                Users.findOneAndUpdate({ _id: userId }, newData, { new: true })
+                            );
+                        } else {
+                            reject({ msg: "User with same email already exist" });
+                        }
+                    } else {
+                        resolve(
+                            Users.findOneAndUpdate({ _id: userId }, newData, { new: true })
+                        );
+                    }
+                } else {
+                    reject({ msg: "Invalid email format" });
+                }
+            } else {
+                resolve(
+                    Users.findOneAndUpdate({ _id: userId }, newData, { new: true })
+                );
+            }
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while updating user!',
                 status: 500,
                 err_msg
             })
@@ -161,6 +200,10 @@ function removeFavoriteFood(userId, productId) {
     });
 }
 
+function validateEmail(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email)
+}
 
 
 module.exports = {
@@ -169,5 +212,6 @@ module.exports = {
     getUserById,
     getFavoriteFoodByUser,
     addFavoriteFood,
-    removeFavoriteFood
+    removeFavoriteFood,
+    updateUser
 };

@@ -44,7 +44,6 @@ RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 router.post('/upload', upload.single('upload'), async (req, res) => {
     try {
         const upload = req.file;
-
         res.send({
             status: true,
             message: 'User image uploaded.',
@@ -130,6 +129,18 @@ router.get("/login", async (req, res) => {
         res.status( error.status || 403).json(error);
     }
 });
+
+//Logged User Can Update His Profile Info
+router.post("/update",isAuth,async(req,res)=>{
+    const newUserData = req.body;
+    try {
+        const userToBeUpdated = await Users.updateUser(req.user.id,newUserData);
+        res.status(200).json(userToBeUpdated);
+    } catch (error) {
+        res.status( error.status || 403).json(error);
+    }
+});
+
 
 //Getting all users
 //tested:working
