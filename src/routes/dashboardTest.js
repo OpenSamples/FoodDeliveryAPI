@@ -3,6 +3,8 @@ const router = require("express").Router();
 const {isAuth} = require("../services/authMiddleware");
 //isAdmin middleware for checking if user is admin 
 const {isAdmin} = require("../services/authMiddleware");
+//Admins Controller
+const AdminsController = require("../controllers/AdminsController");
 
 router.use(isAuth);
 
@@ -25,6 +27,54 @@ router.get("/admin", isAdmin, async (req,res)=>{
         res.json({msg:"Welcome to Admin Page!"});
     } catch (error) {
         res.status(403).json(error);
+    }
+});
+
+
+router.post("/admin/delete-user/:userId",isAuth,isAdmin,async(req,res)=>{
+    try {
+        const userToBeDeleted = await AdminsController.deleteUser(req.params.userId);
+        res.status(200).json({msg:"Successfully deleted user",deletedUser:userToBeDeleted});
+    } catch (error) {
+        res.status( error.status || 403).json(error);
+    }
+});
+
+router.post("/admin/delete-product/:productId",isAuth,isAdmin,async(req,res)=>{
+    try {
+        const productToBeDeleted = await AdminsController.deleteProduct(req.params.productId);
+        res.status(200).json({msg:"Successfully deleted product",deletedProduct:productToBeDeleted});
+    } catch (error) {
+        res.status( error.status || 403).json(error);
+    }
+});
+
+router.post("/admin/update-product/:productId",isAuth,isAdmin,async(req,res)=>{
+    const newProductData = req.body;
+    try {
+        const productToBeUpdated = await AdminsController.updateProduct(req.params.productId,newProductData);
+        res.status(200).json({msg:"Successfully updated product",updatedProduct:productToBeUpdated});
+    } catch (error) {
+        res.status( error.status || 403).json(error);
+    }
+});
+
+router.post("/admin/delete-category/:categoryId",isAuth,isAdmin,async(req,res)=>{
+    try {
+        const categoryToBeDeleted = await AdminsController.deleteCategory(req.params.categoryId);
+        res.status(200).json({msg:"Successfully deleted category",deletedCategory:categoryToBeDeleted});
+    } catch (error) {
+        res.status( error.status || 403).json(error);
+    }
+});
+
+router.post("/admin/update-category/:categoryId",isAuth,isAdmin,async(req,res)=>{
+    const newCategoryData = req.body;
+    try {
+        const categoryToBeUpdated = await AdminsController.updatedCategory(req.params.categoryId,newCategoryData);
+        res.status(200).json({msg:"Successfully updated product",updatedCategory:categoryToBeUpdated});
+    } catch (error) {
+        res.status( error.status || 403).json(error);
     }
 });
 
