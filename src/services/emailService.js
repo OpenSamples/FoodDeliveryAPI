@@ -56,6 +56,28 @@ const verifyEmail = async(email, link, name) => {
   });
 }
 
+const send2FA = async (email, code, name) => {
+  let emailTransporter = await createTransporter();
+  await emailTransporter.sendMail({
+    subject: 'Your confirmation code',
+    from: 'dostavahrane06@gmail.com',
+    to: email,
+    html: `<div>
+              <h2>Hello ${name}</h2>
+              <p>
+                Someone made an account sign-in request. You need to confirm that it's you.
+              </p>
+              <br>
+              <p>
+                Please use code ~it will expire in 10 minutes~ below: 
+              </p>
+              <h1>${code}</h1>
+              <br><br>
+              <p>If it's not you, please change your password</p>
+          </div>`
+  });
+}
+
 const sendEmail = async (emailOptions) => {
     let emailTransporter = await createTransporter();
     await emailTransporter.sendMail(emailOptions);
@@ -72,5 +94,6 @@ const sendEmail = async (emailOptions) => {
 
 module.exports = {
   sendEmail,
-  verifyEmail
+  verifyEmail,
+  send2FA
 }

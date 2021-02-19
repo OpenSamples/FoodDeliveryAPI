@@ -224,6 +224,46 @@ function verifyEmail(userId) {
     })
 }
 
+function updateCode(userId, code) {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Users.findOneAndUpdate({_id: userId}, { $set: { two_fa: { enabled: true, code } }}))
+        } catch(err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong...',
+                status: 500,
+                err_msg
+            })
+        }
+    })
+}
+
+function getCode(userId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let user = await Users.find({_id: userId}).exec()
+
+            if(!user[0]) {
+                reject({
+                    error: true,
+                    message: 'User does not exist!',
+                    status: 404
+                })
+                return;
+            }
+            resolve(user[0].two_fa.code)
+        } catch(e) {
+            reject({
+                error: true,
+                message: 'Something went wrong...',
+                status: 500,
+                err_msg: e
+            })
+        }
+    })
+}
+
 function validateEmail(email) {
     const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email)
@@ -238,5 +278,7 @@ module.exports = {
     addFavoriteFood,
     removeFavoriteFood,
     updateUser,
-    verifyEmail
+    verifyEmail,
+    updateCode,
+    getCode
 };

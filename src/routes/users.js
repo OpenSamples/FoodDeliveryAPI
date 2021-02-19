@@ -5,7 +5,7 @@ const { isAuth } = require("../services/authMiddleware");
 const { isGoogle } = require("../services/authMiddleware");
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
-const { verifyEmail } = require('../services/emailService');
+const { verifyEmail, send2FA } = require('../services/emailService');
 
 let storage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -111,14 +111,107 @@ router.get('/verifyEmail/:token', async (req, res) => {
 
 //User/Admin can login we use passports middleware function called authenticate in which we choose local(local strategy passport+email)
 //if everythig went well in passport(config/passport.js) we will activate successRedirect if not we will redirect to failureRedirect
-router.post("/login",
-    passport.authenticate('local', {
-        successRedirect: '/api/dashboardTest',
-        failureRedirect: '/api/users/login/?fail=true',
-        failureFlash: true,
-        successFlash: true
-    })
-);
+router.post("/login", async (req, res, next) => {
+    // passport.authenticate('local', {
+    //     successRedirect: '/api/dashboardTest',
+    //     failureRedirect: '/api/users/login/?fail=true',
+    //     failureFlash: true,
+    //     successFlash: true
+    // })
+
+    passport.authenticate('local', async (err, user, info) => {
+        if (err) { 
+            return next(err); 
+        }
+        if (!user) { 
+            return res.redirect(`/api/users/login/?fail=true&message=${info.message}`); 
+        }
+
+        if(info.message === "Successful login.") {
+            req.logIn(user, function(err) {
+                if (err) { 
+                    return next(err); 
+                }
+                return res.redirect('/api/dashboardTest');
+            });
+        } else if(info.message === '2FA') {
+            try {
+                // Perform 2FA
+    
+                // Generate 6 digit code
+                let code = Math.floor(100000 + Math.random() * 900000)
+
+                // Send code to email
+                send2FA(user.email, code, user.firstName)
+    
+                // Insert code in database
+                await Users.updateCode(user._id, code)
+
+                let user_for_verifying = {
+                    id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    favoriteFood: user.favoriteFood,
+                    addresses: user.addresses,
+                    role: user.role,
+                    googleId: user.googleId,
+                    password: user.password,
+                    email_is_verified: user.email_is_verified,
+                    two_fa: user.two_fa,
+                    createdAt: user.createdAt,
+                    updatedAt: user.updatedAt
+                }
+
+                let token = jwt.sign(user_for_verifying, process.env.TWO_FACTOR_SECRET, { expiresIn: '600000ms' })
+
+                return res.json({
+                    message: "User uses 2 factor authentication. In order to login please visit '/api/users/verify_2fa/${token}?code=${code}', please provide us a code user received via email!",
+                    token,
+                    example_link: '/api/users/verify_2fa/${token_here}?code=${code_here}',
+                    two_fa: true
+                })
+            } catch(e) {
+                console.log(e)
+            }
+        }
+    })(req, res, next)
+});
+
+router.post('/verify_2fa/:token', async (req, res) => {
+    let token = req.params.token
+    let code = req.query.code
+
+    if(!code && code !== 000000) {
+        return res.status(401).json({
+            error: true,
+            message: 'Invalid code',
+            status: 401
+        })
+    }
+
+    try {
+        let user = jwt.verify(token, process.env.TWO_FACTOR_SECRET)
+        let actual_code = await Users.getCode(user.id)
+
+        if(actual_code !== +code) {
+            return res.status(401).json({
+                error: true,
+                message: 'Authentication error',
+                status: 401
+            })
+        }
+
+        req.logIn(user, function(err) {
+            if (err) { 
+                return next(err); 
+            }
+            return res.redirect('/api/dashboardTest');
+        });
+    } catch(e) {
+        console.log(e)
+    }
+})
 
 //When user decides to login with google account instead of registering he can do that through this route
 //this route will authenticate user's data provided with googleStrategy(passport) in scope we declare what we want to fetch
