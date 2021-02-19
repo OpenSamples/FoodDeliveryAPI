@@ -14,7 +14,11 @@ module.exports = () => {
     if (!passWordMatch) {
       return done(null, false, { message: "Incorrect password." });
     }
-    return done(null, user, { message: "Successful login." });
+    if(!user.two_fa.enabled) {
+      return done(null, user, { message: "Successful login." });
+    }
+    return done(null, user, { message: '2FA' })
+
   }));
 
   passport.use(new GoogleStrategy({

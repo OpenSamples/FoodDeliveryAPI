@@ -57,11 +57,50 @@ function addUser(data) {
                 data.password = await bcrypt.hash(data.password, 10);
                 resolve(Users.create(data));
             }
-            
+
         } catch (err_msg) {
             reject({
                 error: true,
                 message: 'Something went wrong while adding new user!',
+                status: 500,
+                err_msg
+            })
+        }
+    });
+}
+
+//Update user
+function updateUser(userId, newData) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (newData.email !== undefined) {
+                if (validateEmail(newData.email)) {
+                    const user = await Users.findOne({ email: newData.email });
+                    if (user) {
+                        if (user.email === newData.email) {
+                            resolve(
+                                Users.findOneAndUpdate({ _id: userId }, newData, { new: true })
+                            );
+                        } else {
+                            reject({ msg: "User with same email already exist" });
+                        }
+                    } else {
+                        resolve(
+                            Users.findOneAndUpdate({ _id: userId }, newData, { new: true })
+                        );
+                    }
+                } else {
+                    reject({ msg: "Invalid email format" });
+                }
+            } else {
+                resolve(
+                    Users.findOneAndUpdate({ _id: userId }, newData, { new: true })
+                );
+            }
+        } catch (err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong while updating user!',
                 status: 500,
                 err_msg
             })
@@ -161,6 +200,74 @@ function removeFavoriteFood(userId, productId) {
     });
 }
 
+function verifyEmail(userId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let isUpdated = await Users.findOneAndUpdate({_id: userId}, {email_is_verified: true})
+            if(!isUpdated) {
+                reject({
+                    error: true,
+                    status: 404,
+                    message: 'User does not exist!'
+                })
+                return;
+            }
+            resolve(isUpdated)
+        } catch (e) {
+            reject({
+                error: true,
+                status: 500,
+                message: 'Something went wrong while verifying email...',
+                err_msg: e
+            })
+        }
+    })
+}
+
+function updateCode(userId, code) {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Users.findOneAndUpdate({_id: userId}, { $set: { two_fa: { enabled: true, code } }}))
+        } catch(err_msg) {
+            reject({
+                error: true,
+                message: 'Something went wrong...',
+                status: 500,
+                err_msg
+            })
+        }
+    })
+}
+
+function getCode(userId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let user = await Users.find({_id: userId}).exec()
+
+            if(!user[0]) {
+                reject({
+                    error: true,
+                    message: 'User does not exist!',
+                    status: 404
+                })
+                return;
+            }
+            resolve(user[0].two_fa.code)
+        } catch(e) {
+            reject({
+                error: true,
+                message: 'Something went wrong...',
+                status: 500,
+                err_msg: e
+            })
+        }
+    })
+}
+
+function validateEmail(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email)
+}
 
 
 module.exports = {
@@ -169,5 +276,9 @@ module.exports = {
     getUserById,
     getFavoriteFoodByUser,
     addFavoriteFood,
-    removeFavoriteFood
+    removeFavoriteFood,
+    updateUser,
+    verifyEmail,
+    updateCode,
+    getCode
 };

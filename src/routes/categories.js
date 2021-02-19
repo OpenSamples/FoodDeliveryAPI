@@ -2,6 +2,30 @@ const router = require("express").Router();
 //Categories controller
 const Categories = require("../controllers/CategoriesController");
 const {isAuth, isAdmin} = require("../services/authMiddleware");
+const multer = require('multer');
+
+let storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, './public/images/categories')
+    },
+    filename: function (req, file, callback) {
+        callback(null, Date.now() + '-' + file.originalname)
+    }
+})
+
+// multer options
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 3145728
+    },
+    fileFilter(req, file, cb) {
+        if (file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+            cb(new Error('Please upload product image.'))
+        }
+        cb (undefined, true)
+    }
+})
 
 /*
 Routes for categories
@@ -10,6 +34,25 @@ Categories
 - GetCategories - GET: api/Categories
 - CreateCategories - POST: api/Categories
 */
+
+// Category image upload route
+router.post('/upload', upload.single('upload'), async (req, res) => {
+    try {
+        const upload = req.file;
+
+        res.send({
+            status: true,
+            message: 'Category image uploaded.',
+            data: {
+                name: upload.originalname,
+                mimetype: upload.mimetype,
+                size: upload.size
+            }
+        })
+    } catch (err) {
+        res.status(500).send(err)
+    }
+})
 
 //Create new category fetching req.body and passing it as parameter to createCategories function
 //tested:working
