@@ -159,6 +159,7 @@ router.post("/login", async (req, res, next) => {
                     password: user.password,
                     email_is_verified: user.email_is_verified,
                     two_fa: user.two_fa,
+                    logoUrl: user.logoUrl,
                     createdAt: user.createdAt,
                     updatedAt: user.updatedAt
                 }
