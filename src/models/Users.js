@@ -19,6 +19,15 @@ const usersSchema = new Schema({
         type:Boolean,
         default:false
     },
+    two_fa: {
+        enabled: {
+            type: Boolean,
+            default: false
+        },
+        code: {
+            type: Number
+        }
+    },
     password: {
         type: String,
         default:null
