@@ -45,7 +45,6 @@ function addUser(data) {
                 reject(validate);
                 return;
             }
-
             const userByEmail = await Users.findOne({ email: data.email });
             if (userByEmail) {
                 reject({
@@ -57,7 +56,6 @@ function addUser(data) {
                 data.password = await bcrypt.hash(data.password, 10);
                 resolve(Users.create(data));
             }
-
         } catch (err_msg) {
             reject({
                 error: true,
