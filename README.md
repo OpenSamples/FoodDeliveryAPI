@@ -35,5 +35,5 @@ Node.js, MongoDB, Express.js, Passport, OAuth2
 - Logged User(admin) can add/remove/update Products & Categories
 - Logged User(admin) can remove other Users
 #### Heroku:   
-https://food-delivery-api.herokuapp.com/api   
+https://api-food-delivery.herokuapp.com   
    
