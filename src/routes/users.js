@@ -3,6 +3,7 @@ const Users = require("../controllers/UsersController");
 const passport = require("passport");
 const { isAuth } = require("../services/authMiddleware");
 const { isGoogle } = require("../services/authMiddleware");
+const { isAdmin } = require("../services/authMiddleware");
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const { verifyEmail, send2FA } = require('../services/emailService');
@@ -271,7 +272,7 @@ router.post("/update",isAuth,async(req,res)=>{
 
 //Getting all users
 //tested:working
-router.get("/", async (req, res) => {
+router.get("/",isAuth,isAdmin,async (req, res) => {
     try {
         const allUsers = await Users.getAllUsers();
         res.status(200).json(allUsers);
