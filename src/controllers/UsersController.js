@@ -73,6 +73,14 @@ function addUser(data) {
 function updateUser(userId, newData) {
     return new Promise(async (resolve, reject) => {
         try {
+            const userById = await Users.findOne({_id: userId})
+
+            if(userById.googleId) {
+                newData.two_fa = {
+                    enabled: false
+                }
+            }
+
             if (newData.email !== undefined) {
                 if (validateEmail(newData.email)) {
                     const user = await Users.findOne({ email: newData.email });
@@ -227,7 +235,13 @@ function verifyEmail(userId) {
 function updateCode(userId, code) {
     return new Promise((resolve, reject) => {
         try {
-            resolve(Users.findOneAndUpdate({_id: userId}, { $set: { two_fa: { enabled: true, code } }}))
+            const user = Users.findOne({_id: userId})
+            let two_fa_enabled = true
+            if(user.googleId) {
+                two_fa_enabled = false
+                
+            }
+            resolve(Users.findOneAndUpdate({_id: userId}, { $set: { two_fa: { enabled: two_fa_enabled, code } }}))
         } catch(err_msg) {
             reject({
                 error: true,
@@ -244,7 +258,7 @@ function getCode(userId) {
         try {
             let user = await Users.find({_id: userId}).exec()
 
-            if(!user[0]) {
+            if(!user[0]._id) {
                 reject({
                     error: true,
                     message: 'User does not exist!',
@@ -257,6 +271,74 @@ function getCode(userId) {
             reject({
                 error: true,
                 message: 'Something went wrong...',
+                status: 500,
+                err_msg: e
+            })
+        }
+    })
+}
+
+function updateToken(userId, token) {
+    return new Promise( async (resolve, reject) => {
+        try {
+            
+            // let user = await Users.find({_id: userId}).exec()
+
+            // if(!user[0]) {
+            //     reject({
+            //         error: true,
+            //         message: 'User does not exist!',
+            //         status: 404
+            //     })
+            //     return;
+            // }
+
+            resolve(Users.findByIdAndUpdate({ _id: userId }, { token }))
+        } catch(e) {
+            reject({
+                error: true,
+                message: 'Something went wrong...',
+                status: 500,
+                err_msg: e
+            })
+        }
+    })
+}
+
+function clearToken(userId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let user = await Users.find({_id: userId}).exec()
+
+            if(!user[0]) {
+                reject({
+                    error: true,
+                    message: 'User does not exist!',
+                    status: 404
+                })
+                return;
+            }
+
+            resolve(Users.findOneAndUpdate({_id: userId}, { $unset: {  token: 1 } }))
+        } catch(e) {
+            reject({
+                error: true,
+                message: "Something went wrong...",
+                status: 500,
+                err_msg: e
+            })
+        }
+    })
+}
+
+function deleteById(id) { 
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Users.deleteOne({_id: id}))
+        } catch(e) {
+            reject({
+                error: true,
+                message: 'Something went wrong while deleting user...',
                 status: 500,
                 err_msg: e
             })
@@ -280,5 +362,8 @@ module.exports = {
     updateUser,
     verifyEmail,
     updateCode,
-    getCode
+    getCode,
+    updateToken,
+    clearToken,
+    deleteById
 };
