@@ -7,6 +7,8 @@ const userValidation = require("../validation/userValidation");
 //Hashing the password
 const bcrypt = require("bcrypt");
 
+const {contactUsEmail} = require("../services/emailService");
+
 /*
 Users
 AddNewUser - POST : api/Users
@@ -364,6 +366,22 @@ function getUserByEmail(email) {
     })
 }
 
+function contactUsEmail(contactData){
+    return new Promise((resolve,reject)=>{
+        try {
+            resolve(
+                contactUsEmail(contactData)
+            )
+        }  catch(e) {
+            reject({
+                error: true,
+                status: 500,
+                message: 'Something went wrong...',
+                err_msg: e
+            })
+        }
+    });
+}
 
 module.exports = {
     addUser,
@@ -379,5 +397,6 @@ module.exports = {
     updateToken,
     clearToken,
     deleteById,
-    getUserByEmail
+    getUserByEmail,
+    contactUsEmail
 };
