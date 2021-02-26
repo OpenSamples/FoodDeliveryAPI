@@ -349,6 +349,21 @@ function validateEmail(email) {
     return re.test(email)
 }
 
+function getUserByEmail(email) {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Users.findOne({email}))
+        } catch(e) {
+            reject({
+                error: true,
+                status: 500,
+                message: 'Something went wrong...',
+                err_msg: e
+            })
+        }
+    })
+}
+
 
 module.exports = {
     addUser,
@@ -363,5 +378,6 @@ module.exports = {
     getCode,
     updateToken,
     clearToken,
-    deleteById
+    deleteById,
+    getUserByEmail
 };
