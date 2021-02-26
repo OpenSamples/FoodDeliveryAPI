@@ -6,6 +6,7 @@ const { isGoogle } = require("../services/authMiddleware");
 const { isAdmin } = require("../services/authMiddleware");
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
+const bcrypt = require("bcrypt");
 const { verifyEmail, send2FA, sendResetLink } = require('../services/emailService');
 
 let storage = multer.diskStorage({
@@ -159,12 +160,11 @@ router.post('/reset-password/:email', async (req, res) => {
         if(user && user._id) {
             // Generate token and send to email
             let token = jwt.sign({
-                ...user
+                ...user._doc
             }, process.env.RESET_SECRET, { expiresIn: '1h' })
 
-            let link = process.env.HOST + 'reset-password-token/' + token
+            let link = process.env.HOST + 'api/users/reset-password-token/' + token
             sendResetLink(user.email, link, user.firstName)
-
 
             res.status(200).json({
                 message: 'Reset link sent!'
@@ -179,29 +179,59 @@ router.post('/reset-password/:email', async (req, res) => {
 
 
 router.get('/reset-password-token/:token', async (req, res) => {
-    try {
-        let verifiedToken = jwt.verify(req.params.token, process.env.RESET_SECRET)
-        
-        res.redirect(process.env.FRONT_HOST + '/reset-password/' + req.params.token)
-    } catch(e) {
-
-    }
+    res.redirect(process.env.FRONT_HOST + '/reset-password/' + req.params.token)
 })
 
 
-router.get('/get-user-reset/:token', async (req, res) => {
+router.post('/get-user-reset/:token', async (req, res) => {
     try {
         let verifiedToken = jwt.verify(req.params.token, process.env.RESET_SECRET)
 
-        let userData = await Users.getUserById(verifiedToken._id)
+        let updatedPassword = await Users.updatePassword(verifiedToken._id, req.body.password)
 
-        res.status(200).json(userData)
+        if(updatedPassword) {
+            delete updatedPassword.password
+    
+            res.status(200).json(updatedPassword)
+        } else {
+            throw {message: 'Something went wrong...'}
+        }
     } catch(e) {
         res.status(401).json({
             message: 'Something went wrong...',
             status: 401,
-            error: true
+            error: true,
+            err_msg: e
         })
+    }
+})
+
+
+router.post('/user-data/change-password', isAuth, async (req, res) => {
+    try {
+        let user = await Users.getUserById(req.user.id)
+
+        if(user) {
+            // let oldPassword = await bcrypt.hash(req.body.oldPassword, 10)
+            let passwordMatch = await bcrypt.compare(req.body.oldPassword, user.password)
+            
+            if(passwordMatch) {
+                let updatedPassword = await Users.updatePassword(req.user.id, req.body.password)
+
+                if(updatedPassword) {
+                    res.status(200).json(updatedPassword)
+                } else {
+                    res.status(200).json({message: 'Something went wrong...'})
+                }
+
+            } else {
+                res.status(200).json({message: 'Old password is not correct'})
+            }
+        } else {
+            res.status(200).json({message: 'User does not exist!'})
+        }
+    } catch(e) {
+        res.status(401).json(e)
     }
 })
 
@@ -428,6 +458,9 @@ router.get("/login", async (req, res) => {
 //Logged User Can Update His Profile Info
 router.post("/update",isAuth,async(req,res)=>{
     const newUserData = req.body;
+    if('password' in newUserData) {
+        delete newUserData.password
+    }
     try {
         const userToBeUpdated = await Users.updateUser(req.user.id,newUserData);
         res.status(200).json(userToBeUpdated);

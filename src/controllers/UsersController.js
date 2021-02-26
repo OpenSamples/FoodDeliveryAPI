@@ -383,6 +383,38 @@ function contactUsEmail(contactData){
     });
 }
 
+function updatePassword(userId, password) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if( typeof password === 'string' 
+                && password.length > 4 
+                && password.length < 26 
+                && (/[a-z]/.test(password)) 
+                && (/[A-Z]/.test(password)) 
+                && (/[0-9]/.test(password))) {
+
+                    password = await bcrypt.hash(password, 10)
+
+                    resolve(Users.findOneAndUpdate({_id: userId}, {password}))
+                } else {
+                    reject({
+                        error: true,
+                        status: 401,
+                        message: 'Password is not valid!'
+                    })
+                }
+        } catch(e) {
+            reject({
+                error: true,
+                status: 500,
+                message: 'Something went wrong...',
+                err_msg: e
+            })
+        }
+    })
+}
+
+
 module.exports = {
     addUser,
     getAllUsers,
@@ -398,5 +430,6 @@ module.exports = {
     clearToken,
     deleteById,
     getUserByEmail,
-    contactUsEmail
+    contactUsEmail,
+    updatePassword
 };
