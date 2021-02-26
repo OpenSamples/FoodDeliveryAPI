@@ -98,6 +98,29 @@ const send2FA = async (email, code, name) => {
   }
 }
 
+const sendResetLink = async (email, link, name) => {
+  try { 
+    let emailTransporter = await createTransporter();
+
+    await emailTransporter.sendMail({
+      subject: 'Reset password',
+      from: 'dostavahrane06@gmail.com',
+      to: email,
+      html: `<div>
+                <h2>Hello ${name},</h2>
+                <p>
+                    Someone requested password reset, click on the link below to reset your password...
+                </p>
+                <a href="${link}">RESET PASSWORD</a>
+            </div>`
+    })
+
+    console.log('Email sent!')
+  } catch(e) {
+    console.log('error occured while sending email...')
+  }
+}
+
 const sendEmail = async (emailOptions) => {
   try{
     let emailTransporter = await createTransporter();
@@ -120,5 +143,6 @@ const sendEmail = async (emailOptions) => {
 module.exports = {
   sendEmail,
   verifyEmail,
-  send2FA
+  send2FA,
+  sendResetLink
 }

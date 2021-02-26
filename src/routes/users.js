@@ -5,7 +5,7 @@ const { isAuth } = require("../services/authMiddleware");
 const { isGoogle } = require("../services/authMiddleware");
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
-const { verifyEmail, send2FA } = require('../services/emailService');
+const { verifyEmail, send2FA, sendResetLink } = require('../services/emailService');
 
 let storage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -135,7 +135,9 @@ router.get('/verifyEmail/:token', async (req, res) => {
 
         await Users.verifyEmail(user.id)
 
-        res.status(200).json({message: `Congratulations ${user.name}, successfully verified email`})
+
+        res.redirect(process.env.FRONT_HOST + '/success')
+        // res.status(200).json({message: `Congratulations ${user.name}, successfully verified email`})
     } catch(e) {
         if(e.message === 'Something went wrong while verifying email...' || e.message === 'User does not exist!') {
             return res.status(e.status || 404).json(e)
@@ -144,6 +146,60 @@ router.get('/verifyEmail/:token', async (req, res) => {
             error: true,
             status: 401,
             message: 'Invalid token!'
+        })
+    }
+})
+
+
+router.post('/reset-password/:email', async (req, res) => {
+    try {
+        let user = await Users.getUserByEmail(req.params.email)
+
+        if(user && user._id) {
+            // Generate token and send to email
+            let token = jwt.sign({
+                ...user
+            }, process.env.RESET_SECRET, { expiresIn: '1h' })
+
+            let link = process.env.HOST + 'reset-password-token/' + token
+            sendResetLink(user.email, link, user.firstName)
+
+
+            res.status(200).json({
+                message: 'Reset link sent!'
+            })
+        } else {
+            res.status(200).json({message: 'User does not exists'})
+        }
+    } catch(e) {
+        res.status((e && e.status) || 404).json(e)
+    }
+})
+
+
+router.get('/reset-password-token/:token', async (req, res) => {
+    try {
+        let verifiedToken = jwt.verify(req.params.token, process.env.RESET_SECRET)
+        
+        res.redirect(process.env.FRONT_HOST + '/reset-password/' + req.params.token)
+    } catch(e) {
+
+    }
+})
+
+
+router.get('/get-user-reset/:token', async (req, res) => {
+    try {
+        let verifiedToken = jwt.verify(req.params.token, process.env.RESET_SECRET)
+
+        let userData = await Users.getUserById(verifiedToken._id)
+
+        res.status(200).json(userData)
+    } catch(e) {
+        res.status(401).json({
+            message: 'Something went wrong...',
+            status: 401,
+            error: true
         })
     }
 })
