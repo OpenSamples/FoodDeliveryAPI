@@ -3,7 +3,7 @@ const Shopping_cart_items_model = require("../models/ShoppingCartItems");
 
 async function validateOrder(orderData, userId) {
     try {
-        let requiredKeys = ['phone', 'address']
+        let requiredKeys = ['phone', 'address', 'fullName']
         const errors = [];
 
         for(let i = 0; i < requiredKeys.length; i++) {
@@ -35,11 +35,11 @@ async function validateOrder(orderData, userId) {
             }
         }
 
-        const { phone, address } = orderData;
+        const { phone, address, fullName } = orderData;
         const sci = await Shopping_cart_items_model.findOne({ userId: userId });
         const rePhone = /^\d{9}$/;
 
-        if (phone.length < 1 || address.length < 1) {
+        if (phone.length < 1 || address.length < 1 || fullName.length < 3) {
             errors.push("Must fill all fields.")
         }
 

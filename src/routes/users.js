@@ -31,6 +31,31 @@ const upload = multer({
     }
 })
 
+const generateAuthToken = async (id) => {
+    try {
+        let user = await Users.getUserById(id)
+        if(!user) {
+            throw {error: true, message: 'User does not exists!', status: 404}
+        }
+    
+        let token = jwt.sign({
+            ...user._doc,
+            token: ''
+        }, process.env.USER_TOKEN_SECRET, { expiresIn: '12h' })
+
+        let tokenInDb = await Users.updateToken(id, token)
+
+        if(!tokenInDb._id) {
+            throw {error: true, user: tokenInDb, message: 'Something went wrong while generating token!', status: 500}
+        }
+
+        return token
+    } catch (e) {
+        return e
+    }
+}
+
+
 /*
 Users
 UploadUserImage - POST : api/Users/upload
@@ -80,9 +105,23 @@ router.post("/", async (req, res) => {
 
         verifyEmail(newUser.email, verificationLink, newUser.firstName)
 
+        // Generate token
+
+        const authToken = await generateAuthToken(newUser._id)
+        if(authToken.error) {
+            throw authToken
+        }
+
+
         // req.flash("success_messages", "Successfully registered! you can now login!");
         // res.redirect("/api/users/login/?register=true");
-        res.status(201).json(newUser);
+        res.status(201).json({
+            message: 'Successfully!',
+            user: {
+                ...newUser._doc,
+                token: authToken
+            }
+        });
     } catch (error) {
         res.status(403).json(error);
     }
@@ -129,11 +168,21 @@ router.post("/login", async (req, res, next) => {
         }
 
         if(info.message === "Successful login.") {
+            // Generate token
+            const authToken = await generateAuthToken(user._id)
+            if(authToken.error) {
+                throw authToken
+            }
+
             req.logIn(user, function(err) {
                 if (err) { 
                     return next(err); 
                 }
-                return res.redirect('/api/dashboardTest');
+                res.status(200).json({message: 'Successfully logged in!', user: {
+                    ...user._doc,
+                    token: authToken
+                }})
+                // return res.redirect('/api/dashboardTest');
             });
         } else if(info.message === '2FA') {
             try {
@@ -185,7 +234,7 @@ router.post('/verify_2fa/:token', async (req, res) => {
     let code = req.query.code
 
     if(!code && code !== 000000) {
-        return res.status(401).json({
+        return res.status(200).json({
             error: true,
             message: 'Invalid code',
             status: 401
@@ -194,21 +243,37 @@ router.post('/verify_2fa/:token', async (req, res) => {
 
     try {
         let user = jwt.verify(token, process.env.TWO_FACTOR_SECRET)
+
         let actual_code = await Users.getCode(user.id)
 
         if(actual_code !== +code) {
-            return res.status(401).json({
+            return res.status(200).json({
                 error: true,
                 message: 'Authentication error',
                 status: 401
             })
         }
 
+        // Generate token
+        const authToken = await generateAuthToken(user.id)
+
+        if(authToken.error) {
+            throw authToken
+        }
+
+
         req.logIn(user, function(err) {
             if (err) { 
                 return next(err); 
             }
-            return res.redirect('/api/dashboardTest');
+            return res.status(200).json({
+                message: 'Successfully!',
+                user: {
+                    ...user,
+                    _id: user.id,
+                    token: authToken
+                }
+            });
         });
     } catch(e) {
         console.log(e)
@@ -223,17 +288,63 @@ router.get("/google", isGoogle, passport.authenticate('google',{scope:['profile'
 
 //In GoogleStrategy provided by passport we declared that a certain callback function with url will be called when user logs in
 //this is that route we authenticate that user if everything went well we redirect him to one route if not to other
-router.get("/google/redirect", passport.authenticate('google',{
-    failureRedirect:'/api/users/login/?fail=true',
-    successRedirect:'/api/dashboardTest',
-}));
+router.get("/google/redirect", async (req, res, next) => {
+
+
+    // passport.authenticate('google',{
+    //     failureRedirect:'/api/users/login/?fail=true',
+    //     successRedirect:'/api/dashboardTest',
+    // })
+
+
+    passport.authenticate('google', async (err, user, info) => {
+        if (err) { 
+            return next(err); 
+        }
+        if (!user) { 
+            return res.json({
+                error: true,
+                message: 'Something went wrong...',
+                status: 401
+            }); 
+        }
+
+
+        try {
+            // Generate token
+            const authToken = await generateAuthToken(user._id)
+            if(authToken.error) {
+                throw authToken
+            }
+
+            req.logIn(user, function(err) {
+                if (err) { 
+                    return next(err); 
+                }
+                
+                return res.json({
+                    message: 'Successfully',
+                    user: {
+                        ...user._doc,
+                        token: authToken
+                    }
+                });
+            });
+        } catch(e) {
+            return res.json(e)
+        }
+    })(req, res, next)
+
+});
 
 //User/Admin can logout after passport populates req with his middlweare we can use req.logout() which is used
 //to destroy session and to logout user after that user is being redirected to login page with query message ?logout=true
 //This could be done also with flash messages (flash-connect) on front-end side
-router.get('/logout', (req, res) => {
+router.get('/logout', async (req, res) => {
+    await Users.clearToken(req.user.id)
     req.logout();
-    res.redirect('/api/users/login/?logout=true');
+
+    // res.redirect('/api/users/login/?logout=true');
 });
 
 //This will be some route for login page* idea is to check if req.user exists if yes that means that user is logged there is
@@ -360,5 +471,15 @@ router.post("/remove-favorite-food/:productId", isAuth, async (req, res) => {
         res.status( error.status || 403).json(error);
     }
 });
+
+router.delete('/:id', async (req, res) => {
+    try {
+        let deletedUser = await Users.deleteById(req.params.id)
+
+        res.status(200).json(deletedUser)
+    } catch(e) {
+        res.status(401).json(e)
+    }
+})
 
 module.exports = router;

@@ -107,7 +107,7 @@ router.get("/", async (req, res) => {
 router.get("/:productId", async (req, res) => {
     try {
         const productById = await Products.getProductById(req.params.productId);
-        res.statis(200).json(productById);
+        res.status(200).json(productById);
     } catch (error) {
         res.status( error.status || 403).json(error);
     }
@@ -231,5 +231,16 @@ router.post("/remove-review/:productId", isAuth, async(req,res)=>{
         res.status( error.status || 403).json(error);
     }
 });
+
+
+router.delete('/:id', async (req, res) => {
+    try {
+        let deletedProduct = await Products.deleteById(req.params.id)
+
+        res.status(200).json(deletedProduct)
+    } catch(e) {
+        res.status(401).json(e)
+    }
+})
 
 module.exports = router;

@@ -1,11 +1,12 @@
 const express = require("express");
 const session = require("express-session");
 const bodyParser = require("body-parser");
+const path = require('path')
 const app = express();
 const passport = require("passport");
 const flash = require("connect-flash");
 require("../config/passport")(passport);
-
+const cors = require('cors');
 
 // We include all routes
 const {
@@ -18,6 +19,9 @@ const {
     dashboardTest
 } = require('../src/routes')
 
+
+app.use(cors())
+app.use(express.static(path.join(__dirname, '..', 'public')))
 app.use(flash());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());

@@ -48,8 +48,24 @@ function getAllCategories(){
     });
 }
 
+function deleteById(id) {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Categories.deleteOne({_id: id}))
+        } catch(e) {
+            reject({
+                error: true,
+                message: 'Something went wrong while deleting category...',
+                err_msg: e,
+                status: 500
+            })
+        }
+    })
+}
+
 
 module.exports ={
     createCategories,
-    getAllCategories
+    getAllCategories,
+    deleteById
 };

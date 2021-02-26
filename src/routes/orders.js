@@ -17,6 +17,7 @@ Orders
 router.post("/", async (req, res) => {
     const orderData = req.body;
     const userId = req.user.id;
+
     try {
         const newOrderByUser = await Orders.placeOrder(orderData,userId);
         res.status(201).json(newOrderByUser);

@@ -244,6 +244,21 @@ function removeReview(userId,productId){
     });
 }
 
+function deleteById(id) {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Products.deleteOne({_id: id}))
+        } catch(e) {
+            reject({
+                error: true,
+                message: 'Something went wrong while deleting a product',
+                status: 500,
+                err_msg: e
+            })
+        }
+    })
+}
+
 function calculateAverage(arrayOfNumbers){
     let sum = 0;
     arrayOfNumbers.map(number=>{
@@ -264,5 +279,6 @@ module.exports = {
     getAllReviewsOfProduct,
     getAverageRatingOfProduct,
     getAllCommentsOfProduct,
-    removeReview
+    removeReview,
+    deleteById
 }

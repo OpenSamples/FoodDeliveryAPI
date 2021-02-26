@@ -15,7 +15,7 @@ ShopingCartItems
 - ShoppingCartTotalPrice - GET: api/ShoppingCartItems/SubTotal/3(SciId)
 - GetShoppingCartItemsByUserId - GET: api/ShoppingCartItems/3(userId)
 - ItemsInCart - GET: api/ShoppingCartItems/TotalItems/3
-- RemoveProductFromUsersShoppingCart - POST api/ShoppingCartItems/remove-product/4 (User ID)
+- RemoveProductFromUsersShoppingCart - POST api/ShoppingCartItems/cart/remove-product/4 (User ID)
 - ClearShoppingCart - DEL: api/ShoppingCartItems/3
 */
 
@@ -81,7 +81,7 @@ router.post("/:productId", async (req, res) => {
 //getShoppingCartItemsByUserId 
 //tested:working
 //UPDATE 20210215: We no longer need query reading of userId (/:userId) we now have req.user which has all logged user data
-router.get("/",  async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const usersShoppingCart = await Shopping_cart_items.getShoppingCartItemsByUserId(req.user.id);
         res.status(200).json(usersShoppingCart);
@@ -113,10 +113,21 @@ router.get("/total-items", async(req,res)=>{
     }
 });
 
+router.post('/qty/increase', async (req, res) => {
+    let productId = req.body.productId
+    let value = req.body.value
+    try {
+        const updatedShoppingCart = await Shopping_cart_items.updateProductQty(req.user.id, productId, value)
+        res.json(updatedShoppingCart)
+    } catch (e) {
+        res.status(e.status || 403).json(e)
+    }
+})
+
 //IDEA: Logged user can remove product he added from shopping cart we are getting userId from url and 
 //productId from req.body those two are being passed as parameters to the removeProductFromShoppingCart function
 //tested:working
-router.post("/remove-product", async(req,res)=>{
+router.post("/cart/remove-product", async(req,res)=>{
     const productToBeRemoved = req.body.productId;
     try {
         await Shopping_cart_items.removeProductFromShoppingCart(req.user.id,productToBeRemoved);

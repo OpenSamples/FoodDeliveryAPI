@@ -30,15 +30,19 @@ const usersSchema = new Schema({
     },
     password: {
         type: String,
-        default:null
+        default: null
     },
     googleId:{
         type:String,
-        default:null
+        default: null
     },
     role: {
         type: Number,
         default: 0
+    },
+    token: {
+        type: String,
+        default: null
     },
     logoUrl: {
         type: String
