@@ -7,7 +7,7 @@ const { isAdmin } = require("../services/authMiddleware");
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
-const { verifyEmail, send2FA, sendResetLink } = require('../services/emailService');
+const { verifyEmail, send2FA, sendResetLink, contactUsEmail } = require('../services/emailService');
 
 let storage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -571,10 +571,11 @@ router.delete('/:id', async (req, res) => {
     }
 })
 
-router.post("/contact-us",async(req,res)=>{
+router.post("/contact_form/contact",async(req,res)=>{
     try {
-        const contactMail = await Users.contactUsEmail(req.body);
-        res.status(201).json(contactMail);
+        contactUsEmail(req.body)
+
+        res.status(201).json({message: 'Successfully'});
     } catch (error) {
         res.status( error.status || 403).json(error);
     }
