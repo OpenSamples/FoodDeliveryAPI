@@ -233,7 +233,7 @@ router.post('/verify_2fa/:token', async (req, res) => {
     let code = req.query.code
 
     if(!code && code !== 000000) {
-        return res.status(401).json({
+        return res.status(200).json({
             error: true,
             message: 'Invalid code',
             status: 401
@@ -246,7 +246,7 @@ router.post('/verify_2fa/:token', async (req, res) => {
         let actual_code = await Users.getCode(user.id)
 
         if(actual_code !== +code) {
-            return res.status(401).json({
+            return res.status(200).json({
                 error: true,
                 message: 'Authentication error',
                 status: 401

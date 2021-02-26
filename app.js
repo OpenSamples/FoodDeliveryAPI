@@ -14,7 +14,7 @@ const port = process.env.PORT || 3000;
     
         console.log("Successfully connected to database\n")
     
-        app.listen(5000, () => 
+        app.listen(port, () => 
              console.log(`Server is running properly on port ${port}.`) 
         )
     
