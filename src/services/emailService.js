@@ -71,9 +71,8 @@ const verifyEmail = async(email, link, name) => {
 
 const send2FA = async (email, code, name) => {
   try{
-    console.log('Step: 1')
     let emailTransporter = await createTransporter();
-    console.log('Step: 2')
+
     await emailTransporter.sendMail({
       subject: 'Your confirmation code',
       from: 'dostavahrane06@gmail.com',
