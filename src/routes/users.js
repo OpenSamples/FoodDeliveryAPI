@@ -571,4 +571,13 @@ router.delete('/:id', async (req, res) => {
     }
 })
 
+router.post("/contact-us",async(req,res)=>{
+    try {
+        const contactMail = await Users.contactUsEmail(req.body);
+        res.status(201).json(contactMail);
+    } catch (error) {
+        res.status( error.status || 403).json(error);
+    }
+});
+
 module.exports = router;

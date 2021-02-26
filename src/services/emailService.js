@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
 const OAuth2 = google.auth.OAuth2;
 
-const createTransporter =  () => {
+const createTransporter = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const oauth2Client = new OAuth2(
@@ -16,7 +16,7 @@ const createTransporter =  () => {
         refresh_token: process.env.REFRESH_TOKEN_EMAIL
       });
 
-      
+
       const accessToken = await new Promise((resolve, reject) => {
         oauth2Client.getAccessToken((err, token) => {
           if (err) {
@@ -25,7 +25,7 @@ const createTransporter =  () => {
           resolve(token);
         });
       });
-    
+
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -37,20 +37,20 @@ const createTransporter =  () => {
           refreshToken: process.env.REFRESH_TOKEN_EMAIL
         }
       });
-      
+
       resolve(transporter);
 
-    } catch(e) {
+    } catch (e) {
       reject(e)
     }
   })
 };
 
-const verifyEmail = async(email, link, name) => {
-  try{
+const verifyEmail = async (email, link, name) => {
+  try {
 
     let emailTransporter = await createTransporter();
-  
+
     await emailTransporter.sendMail({
       subject: 'Verify Email Address for Dostava Hrane',
       from: 'dostavahrane06@gmail.com',
@@ -64,13 +64,13 @@ const verifyEmail = async(email, link, name) => {
                 <a href="${link}">VERIFY EMAIL</a>
             </div>`
     });
-  } catch(e) {
+  } catch (e) {
     console.log(e)
   }
 }
 
 const send2FA = async (email, code, name) => {
-  try{
+  try {
     let emailTransporter = await createTransporter();
 
     await emailTransporter.sendMail({
@@ -93,13 +93,13 @@ const send2FA = async (email, code, name) => {
     });
 
     console.log('Email sent!')
-  } catch(e) {
+  } catch (e) {
     console.log('error: ', e)
   }
 }
 
 const sendResetLink = async (email, link, name) => {
-  try { 
+  try {
     let emailTransporter = await createTransporter();
 
     await emailTransporter.sendMail({
@@ -116,21 +116,39 @@ const sendResetLink = async (email, link, name) => {
     })
 
     console.log('Email sent!')
-  } catch(e) {
+  } catch (e) {
     console.log('error occured while sending email...')
   }
 }
 
 const sendEmail = async (emailOptions) => {
-  try{
+  try {
     let emailTransporter = await createTransporter();
     await emailTransporter.sendMail(emailOptions);
 
-  } catch(e) {
+  } catch (e) {
     console.log(e)
   }
 };
 
+const contactUsEmail = async (contactData) => {
+  try {
+    const emailTransporter = await createTransporter();
+    await emailTransporter.sendMail({
+      from: contactData.email,
+      to: 'dostavahrane06@gmail.com',
+      subject: "Mail From Contact Form",
+      html: `<div>
+              <h3>You have a message from <strong>${contactData.email}</strong></h3>
+                <p style="padding: 5px;background-color: gainsboro;border-radius:7px">
+                  ${contactData.message}
+                </p>
+            </div>`
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 // ***EXAMPLE***
 // sendEmail({
@@ -144,5 +162,6 @@ module.exports = {
   sendEmail,
   verifyEmail,
   send2FA,
-  sendResetLink
+  sendResetLink,
+  contactUsEmail
 }
