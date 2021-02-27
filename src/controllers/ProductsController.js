@@ -177,14 +177,14 @@ function getAverageRatingOfProduct(productId){
     return new Promise(async(resolve,reject)=>{
         try {
             const product = await Products.findOne({_id:productId});
+
             const productRatings = product.reviews.map(review=>{
+
                 return review.rating;
             });
-            if(productRatings.length<1){
-                resolve({msg:"No ratings yet"});
-            }else{
-                resolve(calculateAverage(productRatings));
-            }
+
+            resolve(calculateAverage(productRatings));
+            
          } catch (err_msg) {
             reject({
                 error: true,
@@ -203,14 +203,15 @@ function getAllCommentsOfProduct(productId){
     return new Promise(async(resolve,reject)=>{
         try {
             const product = await Products.findOne({_id:productId});
-            const productComments = product.reviews.map(review=>{
-                return review.comment;
+
+            const productComments = product.reviews.filter(review=>{
+                if(review.comment) {
+                    return review
+                }
             });
-            if(productComments.length<1){
-                resolve({msg:"No comments yet"});
-            }else{
-                resolve(productComments);
-            }
+            
+            resolve(productComments);
+            
          } catch (err_msg) {
             reject({
                 error: true,
@@ -259,6 +260,22 @@ function deleteById(id) {
     })
 }
 
+
+function changePopular(productId, popular) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            resolve(Products.findOneAndUpdate({_id: productId}, {isPopularProduct: popular}))
+        } catch(e) {
+            reject({
+                error: true,
+                status: 500,
+                message: 'Something went wrong...',
+                err_msg: e
+            })
+        }
+    })
+}
+
 function calculateAverage(arrayOfNumbers){
     let sum = 0;
     arrayOfNumbers.map(number=>{
@@ -280,5 +297,6 @@ module.exports = {
     getAverageRatingOfProduct,
     getAllCommentsOfProduct,
     removeReview,
-    deleteById
+    deleteById,
+    changePopular
 }

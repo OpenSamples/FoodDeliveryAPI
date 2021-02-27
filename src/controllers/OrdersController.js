@@ -106,18 +106,56 @@ function getOrdersByUserId(userId) {
 }
 
 
+function finishOrder(userId, orderId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            resolve(Orders.findOneAndUpdate({_id: orderId, userId}, {isOrderCompleted: true}))
+        } catch(e) {
+            reject({
+                error: true,
+                status: 500,
+                message: 'Something went wrong...',
+                err_msg: e
+            })
+        }
+    })
+}
+
+
 //This is returning wrong date(one day early) we need to provide new one
+// function getTodaysDate() {
+//     var today = new Date();
+//     var dd = String(today.getDate()).padStart(2, '0');
+//     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+//     var yyyy = today.getFullYear();
+//     today = mm + '/' + dd + '/' + yyyy;
+//     return today;
+// }
+
+// Fix for the function above
 function getTodaysDate() {
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    var yyyy = today.getFullYear();
+    let today = new Date();
+    let dd = String(today.getDate()).length === 1 ? '0' + today.getDate() : today.getDate()
+    let mm = String(today.getMonth()).length === 1 ? '0' + (today.getMonth() + 1) : today.getMonth() + 1 //January is 0!
+    let yyyy = today.getFullYear();
     today = mm + '/' + dd + '/' + yyyy;
     return today;
+}
+
+function getDayName(date) {
+    // We expect to receive date in format MM/DD/YYYY
+    let fullDate = new Date(date)
+
+    let dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+    let dayIndex = fullDate.getDay()
+
+    return typeof dayIndex === 'number' ? dayNames[dayIndex] : ''
 }
 
 module.exports = {
     placeOrder,
     getOrderDetails,
-    getOrdersByUserId
+    getOrdersByUserId,
+    finishOrder
 };

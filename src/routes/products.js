@@ -142,11 +142,18 @@ router.get("/show/popular-products", async (req, res) => {
 //productId from url(req.params.productId) this can be changed later
 //tested:working
 router.post("/add-review/:productId", isAuth, async(req,res)=>{
-    const review = req.body;
+    const review = {
+        rating: req.body.rating,
+        comment: {
+            imageUrl: req.user.imageUrl,
+            name: req.user.firstName,
+            comment: req.body.comment
+        }
+    };
     const userId = req.user.id;
     try {
         await Products.addReview(review,req.params.productId,userId);
-        res.status(201).json({msg:"Review added successfully!"});
+        res.status(201).json({message:"Review added successfully!"});
     } catch (error) {
         if (error.name === "ValidationError") {
             let errors = {};
@@ -232,8 +239,25 @@ router.post("/remove-review/:productId", isAuth, async(req,res)=>{
     }
 });
 
+router.post('/product_popular/:productId', isAdmin, async (req, res) => {
+    try {
+        let popular = !!req.body.isPopular
+        let productId = req.params.productId
 
-router.delete('/:id', async (req, res) => {
+        let updatedProduct = await Products.changePopular(productId, popular)
+
+        if(updatedProduct) {
+            // Generate token for review
+        }
+
+        res.status(200).json(updatedProduct)
+    } catch(e) {
+        res.status(e.status || 404).json(e)
+    }
+})
+
+
+router.delete('/:id', isAdmin, async (req, res) => {
     try {
         let deletedProduct = await Products.deleteById(req.params.id)
 
