@@ -48,11 +48,11 @@ function placeOrder(orderData,userId) {
                 reject(validator)
                 return;
             }
-
+            
             const user = await Users.findOne({ _id:userId });
             const sci = await Shopping_cart_items_model.findOne({ userId: userId });
             const order = await Orders.create({
-                fullName: user.fullName,
+                fullName: orderData.fullName,
                 address: orderData.address,
                 phone: orderData.phone,
                 orderTotal: sci.totalAmount,

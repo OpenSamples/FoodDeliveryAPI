@@ -85,6 +85,7 @@ router.post("/", isAuth, async (req,res)=>{
 //Get all categories
 //tested:working
 router.get("/", async (req,res)=>{
+
     try {
         const allCategories = await Categories.getAllCategories();
         res.status(201).json(allCategories);
@@ -92,5 +93,16 @@ router.get("/", async (req,res)=>{
         res.status(error.status || 403).json(error);
     }
 });
+
+
+router.delete('/:id', async (req, res) => {
+    try {
+        let deletedCategory = await Categories.deleteById(req.params.id)
+
+        res.status(200).json(deletedCategory)
+    } catch(e) {
+        res.status(401).json(e)
+    }
+})
 
 module.exports = router;

@@ -62,9 +62,27 @@ function addToCart(qty, productId, userId) {
 //Getting ShoppingCart by user we are searching for that shoppingCart by findOne where userId(field in ShoppingCartItems)
 //is same as userId which we provided through parameters
 function getShoppingCartItemsByUserId(userId) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            resolve(Shopping_cart_items.findOne({ userId: userId }));
+            let shopping_items = await Shopping_cart_items.findOne({ userId: userId })
+            if(!shopping_items) {
+                return resolve(null)
+            }
+            let dataForUser = []
+            for(let i = 0; i < shopping_items.products.length; i++) {
+                let item = shopping_items.products[i] 
+
+                let product = await Products.find({_id: item.productId }).exec()
+                let productUser = product[0] || ''
+                dataForUser.push({
+                    ...item._doc,
+                    name: productUser.name,
+                    detail: productUser.detail,
+                    imageUrl: productUser.imageUrl
+                })
+            }
+            
+            resolve(dataForUser);
         } catch (err_msg) {
             reject({
                 error: true,
@@ -155,11 +173,37 @@ function clearShoppingCart(userId) {
     });
 }
 
+function updateProductQty(userId, productId, val) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let shopping_cart = await Shopping_cart_items.findOne({userId})
+
+            let products = shopping_cart.products
+
+            for(let i = 0; i < products.length; i++) {
+                if(products[i].productId == productId) {
+                    products[i].qty += val
+                }
+            }
+
+            resolve(Shopping_cart_items.findOneAndUpdate({userId}, {$set: { products } }))
+        } catch(e) {
+            reject({
+                error: true,
+                message: 'Something went wrong...',
+                status: 500,
+                err_msg: e
+            })
+        }
+    })
+}
+
 module.exports = {
     addToCart,
     getShoppingCartItemsByUserId,
     getTotalPriceAmount,
     getNumberOfProductsInCart,
     removeProductFromShoppingCart,
-    clearShoppingCart
+    clearShoppingCart,
+    updateProductQty
 };
