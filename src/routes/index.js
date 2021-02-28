@@ -4,6 +4,7 @@ const orders = require('./orders')
 const products = require('./products')
 const shopping_cart_items = require('./shopping-cart-items')
 const users = require('./users')
+const statistics = require('./statistics')
 const dashboardTest = require("./dashboardTest");
 
 module.exports = {
@@ -13,5 +14,6 @@ module.exports = {
     products,
     shopping_cart_items,
     users,
+    statistics,
     dashboardTest
 }

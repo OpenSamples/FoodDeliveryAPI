@@ -16,6 +16,7 @@ const {
     products,
     shopping_cart_items,
     users,
+    statistics,
     dashboardTest
 } = require('../src/routes')
 
@@ -47,6 +48,7 @@ app.use("/api/categories", categories);
 app.use("/api/products", products);
 app.use("/api/shopping-cart-items", shopping_cart_items);
 app.use("/api/orders", orders);
+app.use("/api/statistics/", statistics)
 app.use("/api/dashboardTest",dashboardTest);
 
 
