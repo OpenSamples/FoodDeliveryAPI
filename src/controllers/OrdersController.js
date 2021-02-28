@@ -59,6 +59,7 @@ function placeOrder(orderData,userId) {
                 orderPlaced: getTodaysDate(),
                 userId: user._id
             });
+
             await OrderDetails_controller.createOrderDetails(sci.totalAmount, order._id, sci.products);
             await Shopping_cart_items_controller.clearShoppingCart(user._id);
             resolve(order);   
@@ -142,16 +143,7 @@ function getTodaysDate() {
     return today;
 }
 
-function getDayName(date) {
-    // We expect to receive date in format MM/DD/YYYY
-    let fullDate = new Date(date)
 
-    let dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-    let dayIndex = fullDate.getDay()
-
-    return typeof dayIndex === 'number' ? dayNames[dayIndex] : ''
-}
 
 module.exports = {
     placeOrder,
