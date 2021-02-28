@@ -21,7 +21,7 @@ const upload = multer({
         fileSize: 3145728
     },
     fileFilter(req, file, cb) {
-        if (file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+        if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
             cb(new Error('Please upload product image.'))
         }
         cb (undefined, true)
@@ -64,11 +64,26 @@ router.post('/upload', upload.single('upload'), async (req, res) => {
 
 //Adding new product getting data from form in req.body and passing it as parameter to createProduct function
 //tested:working
-router.post("/", isAuth, isAdmin, async (req, res) => {
-    const productData = req.body;
+router.post("/", isAuth, isAdmin, upload.single('imageUrl'), async (req, res) => {
+    // const productData = req.body;
     try {
-        const newProduct = await Products.createProduct(productData);
-        res.status(201).json(newProduct);
+        if(req.file) {
+            let productData = {
+                imageUrl: '.' + req.file.path.slice(6),
+                name: req.body.name,
+                detail: req.body.detail,
+                price: +req.body.price,
+                categoryId: req.body.categoryId
+            }
+            const newProduct = await Products.createProduct(productData);
+            return res.status(201).json(newProduct);
+        }
+
+        return res.status(406).json({
+            error: true,
+            message: 'Please upload thumbnail'
+        })
+
     } catch (error) {
         if (error.name === "ValidationError") {
             let errors = {};

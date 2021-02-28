@@ -1,7 +1,8 @@
 const router = require("express").Router();
 const Statistics = require('../controllers/Statistics')
+const { isAdmin } = require('../services/authMiddleware')
 
-router.get('/', async (req, res) => {
+router.get('/', isAdmin, async (req, res) => {
     try {
         let dataStatistics = await Statistics.getStatistics()
 
