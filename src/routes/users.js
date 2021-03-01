@@ -25,7 +25,7 @@ const upload = multer({
         fileSize: 3145728
     },
     fileFilter(req, file, cb) {
-        if (file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+        if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
             cb(new Error('Please upload user image.'))
         }
         cb (undefined, true)
@@ -505,13 +505,27 @@ router.get("/login", async (req, res) => {
 });
 
 //Logged User Can Update His Profile Info
-router.post("/update",isAuth,async(req,res)=>{
-    const newUserData = req.body;
-    if('password' in newUserData) {
-        delete newUserData.password
+router.post("/update",isAuth, upload.single('userImage'), async(req,res)=>{
+    // const newUserData = req.body;
+    // if('password' in newUserData) {
+    //     delete newUserData.password
+    // }
+
+    let newUserData = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        addresses: req.body.addresses,
+        two_fa: {
+            enabled: req.body.two_fa === 'true' ? true : false
+        }
     }
+    if(req.file) {
+        newUserData.logoUrl = '.' + req.file.path.slice(6)
+    }
+
     try {
-        const userToBeUpdated = await Users.updateUser(req.user.id,newUserData);
+        const userToBeUpdated = await Users.updateUser(req.user.id, newUserData);
+        
         res.status(200).json(userToBeUpdated);
     } catch (error) {
         res.status( error.status || 403).json(error);
