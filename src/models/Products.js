@@ -31,7 +31,9 @@ const productsSchema = new Schema({
             type: Number
         },
         comment: {
-            type: String
+            imageUrl: String,
+            name: String,
+            comment: String
         }
     }],
     

@@ -21,7 +21,7 @@ const upload = multer({
         fileSize: 3145728
     },
     fileFilter(req, file, cb) {
-        if (file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+        if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
             cb(new Error('Please upload product image.'))
         }
         cb (undefined, true)
@@ -64,11 +64,26 @@ router.post('/upload', upload.single('upload'), async (req, res) => {
 
 //Adding new product getting data from form in req.body and passing it as parameter to createProduct function
 //tested:working
-router.post("/", isAuth, isAdmin, async (req, res) => {
-    const productData = req.body;
+router.post("/", isAuth, isAdmin, upload.single('imageUrl'), async (req, res) => {
+    // const productData = req.body;
     try {
-        const newProduct = await Products.createProduct(productData);
-        res.status(201).json(newProduct);
+        if(req.file) {
+            let productData = {
+                imageUrl: '.' + req.file.path.slice(6),
+                name: req.body.name,
+                detail: req.body.detail,
+                price: +req.body.price,
+                categoryId: req.body.categoryId
+            }
+            const newProduct = await Products.createProduct(productData);
+            return res.status(201).json(newProduct);
+        }
+
+        return res.status(406).json({
+            error: true,
+            message: 'Please upload thumbnail'
+        })
+
     } catch (error) {
         if (error.name === "ValidationError") {
             let errors = {};
@@ -142,11 +157,18 @@ router.get("/show/popular-products", async (req, res) => {
 //productId from url(req.params.productId) this can be changed later
 //tested:working
 router.post("/add-review/:productId", isAuth, async(req,res)=>{
-    const review = req.body;
+    const review = {
+        rating: req.body.rating,
+        comment: {
+            imageUrl: req.user.imageUrl,
+            name: req.user.firstName,
+            comment: req.body.comment
+        }
+    };
     const userId = req.user.id;
     try {
         await Products.addReview(review,req.params.productId,userId);
-        res.status(201).json({msg:"Review added successfully!"});
+        res.status(201).json({message:"Review added successfully!"});
     } catch (error) {
         if (error.name === "ValidationError") {
             let errors = {};
@@ -232,8 +254,25 @@ router.post("/remove-review/:productId", isAuth, async(req,res)=>{
     }
 });
 
+router.post('/product_popular/:productId', isAdmin, async (req, res) => {
+    try {
+        let popular = !!req.body.isPopular
+        let productId = req.params.productId
 
-router.delete('/:id', async (req, res) => {
+        let updatedProduct = await Products.changePopular(productId, popular)
+
+        if(updatedProduct) {
+            // Generate token for review
+        }
+
+        res.status(200).json(updatedProduct)
+    } catch(e) {
+        res.status(e.status || 404).json(e)
+    }
+})
+
+
+router.delete('/:id', isAdmin, async (req, res) => {
     try {
         let deletedProduct = await Products.deleteById(req.params.id)
 

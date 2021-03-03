@@ -65,4 +65,15 @@ router.get("/orders-by-user", async (req, res) => {
     }
 });
 
+
+router.post('/finishOrder/:orderId', async (req, res) => {
+    try {
+        const finishedOrder = await Orders.finishOrder(req.user.id, req.params.orderId)
+
+        res.status(200).json(finishedOrder)
+    } catch(e) {
+        res.status(e.status || 404).json(e)
+    }
+})
+
 module.exports = router;

@@ -20,7 +20,7 @@ const upload = multer({
         fileSize: 3145728
     },
     fileFilter(req, file, cb) {
-        if (file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+        if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
             cb(new Error('Please upload product image.'))
         }
         cb (undefined, true)
@@ -53,14 +53,31 @@ router.post('/upload', upload.single('upload'), async (req, res) => {
         res.status(500).send(err)
     }
 })
-
+ 
 //Create new category fetching req.body and passing it as parameter to createCategories function
 //tested:working
-router.post("/", isAuth, async (req,res)=>{
-    const categoriesData = req.body;
+router.post("/", isAuth, upload.single('imageUrl'), async (req,res)=>{
+    // const categoriesData = req.body;
+
     try {
-        const newCategory = await Categories.createCategories(categoriesData);
-        res.status(201).json(newCategory);
+        if(req.file) {
+
+            const categoriesData = {
+                name: req.body.name,
+                imageUrl: '.' + req.file.path.slice(6)
+            }
+
+            const newCategory = await Categories.createCategories(categoriesData);
+    
+            return res.status(201).json(newCategory);
+        }
+
+        res.status(406).json({
+            error: true,
+            message: 'Please select image',
+            status: 406
+        })
+
     } catch (error) {
         if (error.name === "ValidationError") {
             let errors = {};

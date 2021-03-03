@@ -25,7 +25,7 @@ const upload = multer({
         fileSize: 3145728
     },
     fileFilter(req, file, cb) {
-        if (file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+        if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
             cb(new Error('Please upload user image.'))
         }
         cb (undefined, true)
@@ -67,6 +67,32 @@ GetFavoriteFoodByUser - GET : api/Users/FavoriteFood/4 (User ID);
 AddFavoriteFood - POST : api/Users/AddFavoriteFood/5 (Product ID);
 RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 */
+
+
+
+router.post('/resend_email_verification', isAuth, async (req, res) => {
+    try {
+        
+        if(!req.user.email_is_verified) {
+
+            let token = jwt.sign({
+                id: req.user.id,
+                name: req.user.firstName
+            }, process.env.VERIFICATION_SECRET, { expiresIn: "2h" })
+    
+            let verificationLink = `${process.env.HOST || 'http://localhost:3000/'}api/users/verifyEmail/${token}`
+    
+            verifyEmail(req.user.email, verificationLink, req.user.firstName)
+    
+        } 
+        
+        res.json({
+            message: 'Successfully!'
+        })
+    } catch(e) {
+        res.status(500).json(e)
+    }
+})
 
 
 // User image upload route
@@ -370,7 +396,7 @@ router.post('/verify_2fa/:token', async (req, res) => {
 //this route will authenticate user's data provided with googleStrategy(passport) in scope we declare what we want to fetch
 //profile->(first name,last name,photo) email->email we use prompt: 'select_account' to disable autologin (if we some users have multiple accounts
 //on one pc)
-router.get("/google", isGoogle, passport.authenticate('google',{scope:['profile','email'],prompt: 'select_account'}));
+router.get("/google", passport.authenticate('google',{scope:['profile','email'],prompt: 'select_account'}));
 
 //In GoogleStrategy provided by passport we declared that a certain callback function with url will be called when user logs in
 //this is that route we authenticate that user if everything went well we redirect him to one route if not to other
@@ -408,13 +434,24 @@ router.get("/google/redirect", async (req, res, next) => {
                     return next(err); 
                 }
                 
-                return res.json({
-                    message: 'Successfully',
+                let googleLoginToken = jwt.sign({
                     user: {
                         ...user._doc,
                         token: authToken
                     }
-                });
+                }, process.env.GOOGLE_LOGIN_SECRET, { expiresIn: '10min' })
+
+
+                
+                res.redirect(process.env.FRONT_HOST + '/login_with_google/' + googleLoginToken)
+
+                // return res.json({
+                //     message: 'Successfully',
+                //     user: {
+                //         ...user._doc,
+                //         token: authToken
+                //     }
+                // });
             });
         } catch(e) {
             return res.json(e)
@@ -422,6 +459,17 @@ router.get("/google/redirect", async (req, res, next) => {
     })(req, res, next)
 
 });
+
+
+router.get('/google_login/:token', async (req, res) => {
+    try {
+        let data = jwt.verify(req.params.token, process.env.GOOGLE_LOGIN_SECRET)
+
+        res.status(200).json(data)
+    } catch(e) {
+        res.status(401).json(e)
+    }
+})
 
 //User/Admin can logout after passport populates req with his middlweare we can use req.logout() which is used
 //to destroy session and to logout user after that user is being redirected to login page with query message ?logout=true
@@ -438,7 +486,8 @@ router.get('/logout', async (req, res) => {
 router.get("/login", async (req, res) => {
     try {
         if (req.user) {
-            res.redirect("/api/dashboardTest");
+            // res.redirect("/api/dashboardTest");
+            res.json({msg: 'Logged in'})
         } else {
             if (req.query.logout === "true") {
                 res.json({ page: "You are on Login Page", msg: "You just logged out!" });
@@ -456,13 +505,27 @@ router.get("/login", async (req, res) => {
 });
 
 //Logged User Can Update His Profile Info
-router.post("/update",isAuth,async(req,res)=>{
-    const newUserData = req.body;
-    if('password' in newUserData) {
-        delete newUserData.password
+router.post("/update",isAuth, upload.single('userImage'), async(req,res)=>{
+    // const newUserData = req.body;
+    // if('password' in newUserData) {
+    //     delete newUserData.password
+    // }
+
+    let newUserData = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        addresses: req.body.addresses,
+        two_fa: {
+            enabled: req.body.two_fa === 'true' ? true : false
+        }
     }
+    if(req.file) {
+        newUserData.logoUrl = '.' + req.file.path.slice(6)
+    }
+
     try {
-        const userToBeUpdated = await Users.updateUser(req.user.id,newUserData);
+        const userToBeUpdated = await Users.updateUser(req.user.id, newUserData);
+        
         res.status(200).json(userToBeUpdated);
     } catch (error) {
         res.status( error.status || 403).json(error);
