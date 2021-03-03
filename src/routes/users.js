@@ -69,6 +69,16 @@ RemoveFavoriteFood - POST : api/Users/RemoveFavoriteFood/5 (product ID)
 */
 
 
+router.post('/role/change', isAdmin, async (req, res) => {
+    try {
+        let updatedUser = await Users.changeRole(req.body.id, req.body.role)
+
+        res.status(200).json(updatedUser)
+    } catch(e) {
+        res.status(e.status || 401).json(e)
+    }
+})
+
 
 router.post('/resend_email_verification', isAuth, async (req, res) => {
     try {

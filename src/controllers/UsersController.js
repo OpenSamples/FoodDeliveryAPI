@@ -398,6 +398,17 @@ function updatePassword(userId, password) {
 }
 
 
+function changeRole(id, role) {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(Users.findOneAndUpdate({ _id: id }, { $set: { role }}))
+        } catch(e) {
+            reject(e)
+        }
+    })
+}
+
+
 module.exports = {
     addUser,
     getAllUsers,
@@ -413,5 +424,6 @@ module.exports = {
     clearToken,
     deleteById,
     getUserByEmail,
-    updatePassword
+    updatePassword,
+    changeRole
 };
