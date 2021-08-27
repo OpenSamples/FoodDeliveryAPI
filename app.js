@@ -4,7 +4,7 @@ require("dotenv").config();
 const connect = require('./config/db')
 const app = require("./config/server")
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 
 //First we connect to database then we are running the server
