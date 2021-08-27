@@ -9,6 +9,7 @@ Node.js, MongoDB, Express.js, Passport, OAuth2
 #### Add .env to project root:  
 `CLIENT_ID=`   
 `CLIENT_SECRET=`   
+`VERIFICATION_SECRET=`  
 #### Run App:   
 ...\FoodDeliveryAPI>`node app.js`
 #### MongoDB:      
