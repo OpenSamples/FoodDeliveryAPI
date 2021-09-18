@@ -24,7 +24,7 @@ module.exports = () => {
   passport.use(new GoogleStrategy({
     clientID:process.env.CLIENT_ID,
     clientSecret:process.env.CLIENT_SECRET,
-    callbackURL:"http://localhost:3000/api/users/google/redirect",
+    callbackURL:"http://localhost:3001/api/users/google/redirect",
   },
    async(accessToken,refreshToken,profile,done)=>{
       const newUserObject = {

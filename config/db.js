@@ -1,5 +1,5 @@
 const mongoose = require("mongoose"); 
-const connection = process.env.MONGODB_URI || "mongodb://localhost:27017/DostavaHraneApi";
+const connection = process.env.MONGODB_URI || "mongodb://localhost:27017/FoodDeliveryDB";
 
 const connect = (db) => {
     return new Promise((resolve, reject) => {

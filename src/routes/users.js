@@ -80,7 +80,7 @@ router.post('/resend_email_verification', isAuth, async (req, res) => {
                 name: req.user.firstName
             }, process.env.VERIFICATION_SECRET, { expiresIn: "2h" })
     
-            let verificationLink = `${process.env.HOST || 'http://localhost:3000/'}api/users/verifyEmail/${token}`
+            let verificationLink = `${process.env.HOST || 'http://localhost:3001/'}api/users/verifyEmail/${token}`
     
             verifyEmail(req.user.email, verificationLink, req.user.firstName)
     
@@ -128,7 +128,7 @@ router.post("/", async (req, res) => {
             id: newUser._id,
             name: newUser.firstName
         }, process.env.VERIFICATION_SECRET, { expiresIn: "2h" })
-        let verificationLink = `${process.env.WEBSITE_LINK || 'http://localhost:3000'}/api/users/verifyEmail/${token}`
+        let verificationLink = `${process.env.WEBSITE_LINK || 'http://localhost:3001'}/api/users/verifyEmail/${token}`
 
         verifyEmail(newUser.email, verificationLink, newUser.firstName)
 
