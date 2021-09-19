@@ -3,15 +3,18 @@
 ## Technologies:   
 Node.js, MongoDB, Express.js, Passport, OAuth2   
      
-## Instrucions:
+## Instructions:
 ### Install Packages:   
 ...\FoodDeliveryAPI>`npm install`   
 ### Add .env to project root:  
 `CLIENT_ID=`   
 `CLIENT_SECRET=`   
-`VERIFICATION_SECRET=`  
-### Run App:   
-...\FoodDeliveryAPI>`node app.js`
+    
+### Authorization with Passport:   
+- Use `https://console.cloud.google.com/` to create new app and generate new credentials.   
+- Set callback URL to `http://localhost:3001/api/users/google/redirect`    
+- Use generated credentials to set `CLIENT_ID` and `CLIENT_SECRET`.      
+    
 ### MongoDB:      
  - Make folder: `C:\data\db`,     
  - Command Prompt 1 - Start MongoDB: `C:\Program Files\MongoDB\Server\4.2\bin>mongod`    
@@ -21,3 +24,7 @@ Node.js, MongoDB, Express.js, Passport, OAuth2
  Collections: `show collections`     
  Find all documents in the collection: `db.users.find().pretty()`      
  Delete all documents from the collection: `db.users.remove({})`   
+     
+### Run App:   
+...\FoodDeliveryAPI>`node app.js`
+
