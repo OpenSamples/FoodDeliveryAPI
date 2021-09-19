@@ -26,5 +26,7 @@ Node.js, MongoDB, Express.js, Passport, OAuth2
  Delete all documents from the collection: `db.users.remove({})`   
      
 ### Run App:   
-...\FoodDeliveryAPI>`node app.js`
-
+For development: `npm start`    
+For production:    
+...\FoodDeliveryAPI>`node app.js`    
+   
